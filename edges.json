@@ -1,0 +1,661 @@
+{
+  "connections":
+
+
+{
+  "xml_stream": [
+    
+  ],
+  "xml": [
+    
+  ],
+  "win32_dns": [
+    
+  ],
+  "treap": [
+    
+  ],
+  "translate": [
+    "ejabberd_config"
+  ],
+  "tls": [
+    "ejabberd"
+  ],
+  "shaper": [
+    "ejabberd_config"
+  ],
+  "sha": [
+    "ejabberd"
+  ],
+  "randoms": [
+    
+  ],
+  "p1_prof": [
+    
+  ],
+  "p1_mnesia": [
+    
+  ],
+  "p1_fsm": [
+    
+  ],
+  "odbc_queries": [
+    "ejabberd_odbc",
+    "ejabberd_config"
+  ],
+  "mod_websockets": [
+    "ejabberd_c2s",
+    "gen_mod"
+  ],
+  "mod_vcard_odbc": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "odbc_queries",
+    "mod_vcard_odbc",
+    "ejabberd_odbc",
+    "ejabberd_hooks",
+    "gen_mod",
+    "translate",
+    "ejabberd_config",
+    "xml",
+    "xml_stream"
+  ],
+  "mod_vcard": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "ejabberd_hooks",
+    "mod_vcard",
+    "gen_mod",
+    "translate",
+    "ejabberd_config",
+    "xml"
+  ],
+  "mod_snmp": [
+    "ejabberd_snmp_hooks",
+    "ejabberd_hooks",
+    "gen_mod",
+    "ejabberd_snmp_rt",
+    "ejabberd_snmp_core"
+  ],
+  "mod_sic": [
+    "gen_iq_handler",
+    "gen_mod",
+    "ejabberd_sm"
+  ],
+  "mod_roster_odbc": [
+    "sha",
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "randoms",
+    "odbc_queries",
+    "ejabberd_odbc",
+    "ejabberd_hooks",
+    "gen_mod",
+    "translate",
+    "ejabberd_config",
+    "xml",
+    "ejabberd_sm"
+  ],
+  "mod_roster": [
+    "sha",
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "randoms",
+    "ejabberd_hooks",
+    "gen_mod",
+    "translate",
+    "ejabberd_config",
+    "xml",
+    "ejabberd_sm"
+  ],
+  "mod_register": [
+    "treap",
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "ejabberd_hooks",
+    "gen_mod",
+    "translate",
+    "ejabberd_config",
+    "ejabberd_auth",
+    "xml",
+    "acl",
+    "ejabberd_sm"
+  ],
+  "mod_private_odbc": [
+    "jlib",
+    "gen_iq_handler",
+    "odbc_queries",
+    "ejabberd_odbc",
+    "ejabberd_hooks",
+    "gen_mod",
+    "ejabberd_config",
+    "xml",
+    "xml_stream"
+  ],
+  "mod_private": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_hooks",
+    "gen_mod",
+    "ejabberd_config",
+    "xml"
+  ],
+  "mod_privacy_odbc": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "odbc_queries",
+    "ejabberd_odbc",
+    "ejabberd_hooks",
+    "gen_mod",
+    "xml"
+  ],
+  "mod_privacy": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "ejabberd_hooks",
+    "gen_mod",
+    "ejabberd_config",
+    "xml"
+  ],
+  "mod_ping": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_hooks",
+    "ejabberd_c2s",
+    "gen_mod",
+    "ejabberd_local",
+    "ejabberd_sm",
+    "mod_disco"
+  ],
+  "mod_offline": [
+    "p1_mnesia",
+    "jlib",
+    "ejabberd_router",
+    "ejabberd_hooks",
+    "gen_mod",
+    "translate",
+    "mod_offline",
+    "ejabberd_config",
+    "xml",
+    "acl"
+  ],
+  "mod_muc_room": [
+    "treap",
+    "shaper",
+    "jlib",
+    "ejabberd_router",
+    "mod_muc",
+    "gen_mod",
+    "translate",
+    "mod_muc_log",
+    "xml",
+    "acl"
+  ],
+  "mod_muc_log": [
+    "jlib",
+    "gen_mod",
+    "translate",
+    "ejabberd_config",
+    "xml",
+    "acl"
+  ],
+  "mod_muc": [
+    "sha",
+    "jlib",
+    "ejabberd_router",
+    "randoms",
+    "mod_muc",
+    "ejabberd_hooks",
+    "gen_mod",
+    "translate",
+    "xml",
+    "acl",
+    "mod_muc_room"
+  ],
+  "mod_metrics": [
+    "ejabberd_metrics_hooks",
+    "ejabberd_hooks"
+  ],
+  "mod_last_odbc": [
+    "jlib",
+    "gen_iq_handler",
+    "odbc_queries",
+    "ejabberd_odbc",
+    "ejabberd_hooks",
+    "gen_mod",
+    "ejabberd_config",
+    "ejabberd_sm"
+  ],
+  "mod_last": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_hooks",
+    "gen_mod",
+    "ejabberd_config",
+    "ejabberd_sm"
+  ],
+  "mod_disco": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "ejabberd_hooks",
+    "gen_mod",
+    "ejabberd_config",
+    "ejabberd_auth",
+    "xml",
+    "ejabberd_local",
+    "ejabberd_sm"
+  ],
+  "mod_adhoc": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_hooks",
+    "adhoc",
+    "gen_mod",
+    "translate"
+  ],
+  "jlib": [
+    "jlib",
+    "xml"
+  ],
+  "idna": [
+    
+  ],
+  "gen_mod": [
+    "gen_mod",
+    "ejabberd_config"
+  ],
+  "gen_iq_handler": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router"
+  ],
+  "extauth": [
+    "jlib",
+    "gen_mod",
+    "ejabberd_config",
+    "extauth"
+  ],
+  "ejabberd_zlib": [
+    "ejabberd"
+  ],
+  "ejabberd_tmp_sup": [
+    
+  ],
+  "ejabberd_system_monitor": [
+    "jlib",
+    "ejabberd_router",
+    "ejabberd_hooks",
+    "ejabberd_config",
+    "xml"
+  ],
+  "ejabberd_sup": [
+    
+  ],
+  "ejabberd_socket": [
+    "ejabberd_zlib",
+    "ejabberd_receiver",
+    "tls"
+  ],
+  "ejabberd_snmp_rt": [
+    "ejabberd_snmp_backend",
+    "ejabberd_snmp_core",
+    "ejabberd_sm"
+  ],
+  "ejabberd_snmp_hooks": [
+    "ejabberd_snmp_core",
+    "xml",
+    "ejabberd_sm"
+  ],
+  "ejabberd_snmp_core": [
+    
+  ],
+  "ejabberd_snmp_backend": [
+    "odbc_queries",
+    "ejabberd_auth_odbc",
+    "ejabberd_snmp_backend",
+    "ejabberd_config"
+  ],
+  "ejabberd_sm_redis": [
+    "ejabberd_redis"
+  ],
+  "ejabberd_sm_mnesia": [
+    
+  ],
+  "ejabberd_sm_backend_sup": [
+    
+  ],
+  "ejabberd_sm": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "ejabberd_hooks",
+    "ejabberd_commands",
+    "dynamic_compile",
+    "ejabberd_config",
+    "ejabberd_auth",
+    "xml",
+    "acl",
+    "ejabberd_sm"
+  ],
+  "ejabberd_s2s_out": [
+    "idna",
+    "jlib",
+    "ejabberd_router",
+    "randoms",
+    "ejabberd_s2s",
+    "ejabberd_hooks",
+    "ejabberd_socket",
+    "ejabberd_config",
+    "xml",
+    "p1_fsm"
+  ],
+  "ejabberd_s2s_in": [
+    "idna",
+    "jlib",
+    "ejabberd_router",
+    "XmppAddr",
+    "tls",
+    "randoms",
+    "ejabberd_s2s",
+    "ejabberd_hooks",
+    "ejabberd_s2s_out",
+    "translate",
+    "ejabberd_config",
+    "xml",
+    "acl"
+  ],
+  "ejabberd_s2s": [
+    "jlib",
+    "ejabberd_router",
+    "randoms",
+    "ejabberd_hooks",
+    "ejabberd_commands",
+    "ejabberd_s2s_out",
+    "ejabberd_config",
+    "xml",
+    "acl"
+  ],
+  "ejabberd_router": [
+    "jlib",
+    "ejabberd_s2s",
+    "ejabberd_hooks",
+    "ejabberd_config",
+    "xml"
+  ],
+  "ejabberd_redis": [
+    
+  ],
+  "ejabberd_receiver": [
+    "shaper",
+    "ejabberd_zlib",
+    "tls",
+    "xml_stream"
+  ],
+  "ejabberd_rdbms": [
+    "ejabberd_odbc_sup",
+    "jlib",
+    "gen_mod",
+    "ejabberd_config"
+  ],
+  "ejabberd_odbc_sup": [
+    "gen_mod",
+    "ejabberd_config"
+  ],
+  "ejabberd_odbc": [
+    "ejabberd_odbc_sup",
+    "odbc_queries",
+    "ejabberd_config",
+    "p1_fsm"
+  ],
+  "ejabberd_metrics_hooks": [
+    "xml",
+    "ejabberd_sm"
+  ],
+  "ejabberd_loglevel": [
+    
+  ],
+  "ejabberd_local": [
+    "jlib",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "randoms",
+    "ejabberd_hooks",
+    "ejabberd_config",
+    "xml",
+    "ejabberd_sm",
+    "mod_disco"
+  ],
+  "ejabberd_listener": [
+    "gen_mod",
+    "ejabberd_socket",
+    "ejabberd_config"
+  ],
+  "ejabberd_hooks": [
+    
+  ],
+  "ejabberd_gen_sm": [
+    
+  ],
+  "ejabberd_ctl": [
+    "ejabberd_app",
+    "ejabberd_hooks",
+    "ejabberd_commands",
+    "ejabberd_config"
+  ],
+  "ejabberd_config": [
+    "jlib",
+    "ejabberd_listener",
+    "ejabberd_config",
+    "ejabberd_loglevel",
+    "acl"
+  ],
+  "ejabberd_commands": [
+    "jlib",
+    "ejabberd_auth",
+    "acl"
+  ],
+  "ejabberd_check": [
+    "ejabberd_config"
+  ],
+  "ejabberd_c2s": [
+    "sha",
+    "jlib",
+    "ejabberd_zlib",
+    "ejabberd_router",
+    "randoms",
+    "ejabberd_hooks",
+    "translate",
+    "ejabberd_config",
+    "ejabberd_auth",
+    "xml",
+    "cyrsasl",
+    "acl",
+    "p1_fsm",
+    "ejabberd_sm"
+  ],
+  "ejabberd_binary": [
+    
+  ],
+  "ejabberd_auth_odbc": [
+    "jlib",
+    "odbc_queries",
+    "ejabberd_odbc",
+    "ejabberd_config"
+  ],
+  "ejabberd_auth_internal": [
+    "jlib",
+    "ejabberd_config"
+  ],
+  "ejabberd_auth_external": [
+    "mod_last_odbc",
+    "mod_last",
+    "gen_mod",
+    "ejabberd_config",
+    "extauth",
+    "ejabberd_auth_internal",
+    "ejabberd_sm"
+  ],
+  "ejabberd_auth_anonymous": [
+    "jlib",
+    "ejabberd_hooks",
+    "ejabberd_config",
+    "ejabberd_auth",
+    "xml",
+    "ejabberd_sm"
+  ],
+  "ejabberd_auth": [
+    "jlib",
+    "ejabberd_hooks",
+    "ejabberd_config"
+  ],
+  "ejabberd_app": [
+    "ejabberd_sup",
+    "sha",
+    "ejabberd_listener",
+    "win32_dns",
+    "mod_websockets",
+    "ejabberd_rdbms",
+    "ejabberd_commands",
+    "gen_mod",
+    "ejabberd",
+    "translate",
+    "ejabberd_config",
+    "ejabberd_auth",
+    "ejabberd_check",
+    "xml",
+    "ejabberd_loglevel",
+    "ejabberd_ctl",
+    "cyrsasl",
+    "acl",
+    "ejabberd_admin"
+  ],
+  "ejabberd_admin": [
+    "mod_muc",
+    "ejabberd_hooks",
+    "ejabberd_commands",
+    "gen_mod",
+    "mod_offline",
+    "ejabberd_config",
+    "ejabberd_auth",
+    "ejabberd_admin"
+  ],
+  "ejabberd": [
+    "treap",
+    "ejabberd_sup",
+    "sha",
+    "p1_mnesia",
+    "idna",
+    "shaper",
+    "gen_iq_handler",
+    "ejabberd_router",
+    "ejabberd_receiver",
+    "XmppAddr",
+    "win32_dns",
+    "tls",
+    "randoms",
+    "odbc_queries",
+    "mod_websockets",
+    "mod_vcard_odbc",
+    "mod_muc",
+    "mod_last_odbc",
+    "ejabberd_snmp_hooks",
+    "ejabberd_s2s",
+    "ejabberd_redis",
+    "ejabberd_rdbms",
+    "ejabberd_odbc",
+    "ejabberd_metrics_hooks",
+    "ejabberd_hooks",
+    "ejabberd_commands",
+    "ejabberd_c2s",
+    "ejabberd_auth_odbc",
+    "ejabberd_auth_anonymous",
+    "cyrsasl_anonymous",
+    "adhoc",
+    "ELDAPv3",
+    "mod_vcard",
+    "mod_last",
+    "gen_mod",
+    "ejabberd_socket",
+    "ejabberd_snmp_rt",
+    "ejabberd_snmp_backend",
+    "ejabberd_s2s_out",
+    "ejabberd",
+    "cyrsasl_digest",
+    "translate",
+    "mod_offline",
+    "ejabberd_snmp_core",
+    "dynamic_compile",
+    "mod_muc_log",
+    "ejabberd_config",
+    "extauth",
+    "ejabberd_auth",
+    "ejabberd_check",
+    "xml",
+    "ejabberd_loglevel",
+    "ejabberd_local",
+    "ejabberd_ctl",
+    "ejabberd_auth_internal",
+    "cyrsasl",
+    "acl",
+    "xml_stream",
+    "p1_fsm",
+    "mod_muc_room",
+    "ejabberd_sm",
+    "ejabberd_admin",
+    "cyrsasl_plain",
+    "mod_disco",
+    "ejabberd_odbc_sup",
+    "ejabberd_app",
+    "jlib",
+    "ejabberd_zlib",
+    "ejabberd_listener"
+  ],
+  "dynamic_compile": [
+    
+  ],
+  "cyrsasl_plain": [
+    "cyrsasl"
+  ],
+  "cyrsasl_digest": [
+    "randoms",
+    "xml",
+    "cyrsasl"
+  ],
+  "cyrsasl_anonymous": [
+    "randoms",
+    "ejabberd_auth",
+    "cyrsasl"
+  ],
+  "cyrsasl": [
+    "jlib",
+    "ejabberd_auth_anonymous",
+    "cyrsasl_anonymous",
+    "cyrsasl_digest",
+    "ejabberd_auth",
+    "xml",
+    "cyrsasl_plain"
+  ],
+  "adhoc": [
+    "jlib",
+    "xml"
+  ],
+  "acl": [
+    "jlib",
+    "ejabberd_config"
+  ],
+  "XmppAddr": [
+    "XmppAddr"
+  ],
+  "ELDAPv3": [
+    "ELDAPv3"
+  ]
+}
+}
