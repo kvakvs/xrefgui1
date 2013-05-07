@@ -3,11 +3,11 @@
 
 #include <QSet>
 #include <QString>
-//#include <QPoint>
 #include <QRect>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/labeled_graph.hpp>
+#include <boost/graph/topology.hpp>
 
 class xrefNode
 {
@@ -20,6 +20,10 @@ public:
 //    QSet<QString> m_edges_in; // probably this is extraneous and remove it later
     QRect m_rect;
 };
+
+
+typedef boost::rectangle_topology<> xref_topology_type;
+typedef xref_topology_type::point_type xref_point_type;
 
 //typedef boost::labeled_graph <
 //    boost::adjacency_list <boost::vecS, boost::vecS, boost::directedS, xrefNode>,

@@ -9,15 +9,15 @@ class GraphRenderWidget : public QWidget
     Q_OBJECT
 public:
     explicit GraphRenderWidget(QWidget *parent = 0);
+    void graph_layout(bool init_flag);
 
 protected:
     void paintEvent(QPaintEvent *);
-    void layout();
 
     //QGraphicsScene scene;
 
 signals:
-    
+
 public slots:
 };
 

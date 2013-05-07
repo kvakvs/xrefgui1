@@ -24,8 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     load_edges("edges.json");
 
-    QWidget * w = new GraphRenderWidget(this);
+    auto w = new GraphRenderWidget(this);
     ui->centralWidget->layout()->addWidget(w);
+    w->graph_layout(true);
 }
 
 MainWindow::~MainWindow()
