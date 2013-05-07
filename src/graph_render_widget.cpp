@@ -4,6 +4,8 @@
 #include "main_window.h"
 #include "graph_render_widget.h"
 
+#include <boost/graph/random_layout.hpp>
+
 GraphRenderWidget::GraphRenderWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -12,6 +14,8 @@ GraphRenderWidget::GraphRenderWidget(QWidget *parent) :
 void GraphRenderWidget::layout()
 {
 //    auto main = MainWindow::m_singleton;
+//    boost::random_graph_layout(main->m_graph, )
+
 //    int i = 0;
 //    int total = main->m_nodes.size();
 
@@ -38,18 +42,23 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
     auto main = MainWindow::m_singleton;
 //    for (auto iter = main->m_nodes.begin(); iter != main->m_nodes.end(); ++iter) {
 //        xrefNode & n = *iter;
+
+    // http://www.boost.org/doc/libs/1_38_0/libs/graph/doc/quick_tour.html
+    typedef boost::property_map<xrefGraph, boost::vertex_index_t>::type index_map_t;
+    index_map_t index = boost::get(boost::vertex_index, main->m_graph);
     for (auto vp = boost::vertices(main->m_graph); vp.first != vp.second; ++vp.first)
     {
-        //std::cout << index[*vp.first] <<  " ";
+        auto vertex_id = index[* vp.first];
+        auto & n = main->m_nodes[vertex_id];
         painter.setPen(Qt::black);
         painter.drawRect(n.m_rect);
-        painter.drawText(n.m_rect.topLeft() + QPoint(5, 15), iter.value().m_name);
+        painter.drawText(n.m_rect.topLeft() + QPoint(5, 15), n.m_name);
 
-        for (auto & out_edge_name: n.m_edges_out) {
+        /*for (auto & out_edge_name: n.m_edges_out) {
             auto & out_node = main->m_nodes[out_edge_name];
             painter.setPen(Qt::darkGray);
             painter.drawLine(n.m_rect.bottomRight(), out_node.m_rect.bottomRight());
-        }
+        }*/
     }
 //    painter.setPen(Qt::darkGreen);
 //    painter.drawRect(1*50, 2*50, 6*50, 4*50);

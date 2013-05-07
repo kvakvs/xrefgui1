@@ -21,9 +21,11 @@ public:
     QRect m_rect;
 };
 
-typedef boost::labeled_graph <
-    boost::adjacency_list <boost::vecS, boost::vecS, boost::directedS, xrefNode>,
-    QString> xrefGraph;
+//typedef boost::labeled_graph <
+//    boost::adjacency_list <boost::vecS, boost::vecS, boost::directedS, xrefNode>,
+//    QString> xrefGraph;
+typedef boost::adjacency_list <boost::vecS, boost::vecS, boost::directedS, xrefNode> xrefGraph;
+
 //typedef boost::graph_traits<xrefGraph>::vertex_descriptor xrefVertex;
 
 #endif // GRAPH_CLASSES_H
