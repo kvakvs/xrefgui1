@@ -41,35 +41,37 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
     //graph_layout(false);
 
     QPainter painter(this);
+    QFontMetrics font_metrics = painter.fontMetrics();
     painter.setRenderHint(QPainter::Antialiasing);
 
     auto main = MainWindow::m_singleton;
-    QTransform tr;
     auto bb = main->m_graph->u.bb;
-    tr = tr.translate(-bb.LL.x, bb.LL.y);
-    double scalex = width() / (bb.UR.x - bb.LL.x);
-    double scaley = height() / (bb.UR.y - bb.LL.y);
-    tr = tr.scale(std::min(scalex, scaley), std::min(scalex, scaley));
-    painter.setTransform(tr);
+    double translatex = -bb.LL.x;
+    double translatey = -bb.LL.y;
+    double scale = std::min(width() / (bb.UR.x - bb.LL.x), height() / (bb.UR.y - bb.LL.y));
 
     for (auto node = agfstnode(main->m_graph); node != nullptr; node = agnxtnode(main->m_graph, node))
     {
-        QRect rc(node->u.coord.x, node->u.coord.y, 20, 20);
+        QPoint n1pos((node->u.coord.x + translatex) * scale,
+                     (node->u.coord.y + translatey) * scale);
 
         // draw edges
         for (Agedge_t * edge = agfstedge(main->m_graph, node);
-             edge != nullptr; edge = agnxtedge(main->m_graph, edge, node)) {
+             edge != nullptr; edge = agnxtedge(main->m_graph, edge, node))
+        {
+            QPoint n2pos((edge->tail->u.coord.x + translatex) * scale,
+                         (edge->tail->u.coord.y + translatey) * scale);
             painter.setPen(Qt::darkGray);
-            painter.drawLine(node->u.coord.x, node->u.coord.y,
-                             edge->tail->u.coord.x, edge->tail->u.coord.y);
+            painter.drawLine(n1pos, n2pos);
         }
 
         // draw box
-        painter.fillRect(rc, Qt::white);
-
+        auto font_height = font_metrics.height();
+        QRect rect(n1pos.x(), n1pos.y(), font_metrics.width(node->name), font_height);
+        painter.fillRect(rect, Qt::white);
         painter.setPen(Qt::black);
-        painter.drawRect(rc);
+        painter.drawRect(rect);
 
-        painter.drawText(rc.topLeft() + QPoint(5, 15), node->name);
+        painter.drawText(n1pos.x(), n1pos.y() + font_height - font_metrics.descent(), node->name);
     }
 }
