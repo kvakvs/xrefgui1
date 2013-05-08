@@ -48,19 +48,20 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
     auto bb = main->m_graph->u.bb;
     double translatex = -bb.LL.x;
     double translatey = -bb.LL.y;
-    double scale = std::min(width() / (bb.UR.x - bb.LL.x), height() / (bb.UR.y - bb.LL.y));
+    double scalex = width() / (bb.UR.x - bb.LL.x);
+    double scaley = height() / (bb.UR.y - bb.LL.y);
 
     for (auto node = agfstnode(main->m_graph); node != nullptr; node = agnxtnode(main->m_graph, node))
     {
-        QPoint n1pos((node->u.coord.x + translatex) * scale,
-                     (node->u.coord.y + translatey) * scale);
+        QPoint n1pos((node->u.coord.x + translatex) * scalex,
+                     (node->u.coord.y + translatey) * scaley);
 
         // draw edges
         for (Agedge_t * edge = agfstedge(main->m_graph, node);
              edge != nullptr; edge = agnxtedge(main->m_graph, edge, node))
         {
-            QPoint n2pos((edge->tail->u.coord.x + translatex) * scale,
-                         (edge->tail->u.coord.y + translatey) * scale);
+            QPoint n2pos((edge->tail->u.coord.x + translatex) * scalex,
+                         (edge->tail->u.coord.y + translatey) * scaley);
             painter.setPen(Qt::darkGray);
             painter.drawLine(n1pos, n2pos);
         }
