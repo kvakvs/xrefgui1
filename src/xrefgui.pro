@@ -17,10 +17,12 @@ linux:LIBS += -lgvc -lgraph
 SOURCES += main.cpp\
         main_window.cpp \
     graph_render_widget.cpp \
-    graph.cpp
+    graph.cpp \
+    render_things.cpp
 
 HEADERS  += main_window.h \
     graph_render_widget.h \
-    graph.h
+    graph.h \
+    render_things.h
 
 FORMS    += main_window.ui

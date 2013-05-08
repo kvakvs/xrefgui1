@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>681</width>
-     <height>27</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
@@ -41,6 +41,10 @@
    <addaction name="actionCirco"/>
    <addaction name="actionPatchwork"/>
    <addaction name="actionOsage"/>
+   <addaction name="separator"/>
+   <addaction name="actionSpline"/>
+   <addaction name="actionDraw_in"/>
+   <addaction name="actionDraw_out"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionDot">
@@ -105,6 +109,33 @@
    </property>
    <property name="toolTip">
     <string>Apply 'osage' clustered layout</string>
+   </property>
+  </action>
+  <action name="actionSpline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>spline</string>
+   </property>
+   <property name="toolTip">
+    <string>Use splines</string>
+   </property>
+  </action>
+  <action name="actionDraw_in">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>draw in</string>
+   </property>
+  </action>
+  <action name="actionDraw_out">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>draw out</string>
    </property>
   </action>
  </widget>

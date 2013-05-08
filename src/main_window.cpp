@@ -15,8 +15,8 @@
 MainWindow * MainWindow::m_singleton = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent), ui(new Ui::MainWindow),
+    m_settings()
 {
     m_singleton = this;
 
@@ -36,9 +36,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// Directly use agsafeset which always works, contrarily to agset
+static inline int _agset(void * object, const QString & attr, const QString & value)
+{
+    return agsafeset(object, const_cast<char *>(qPrintable(attr)),
+                     const_cast<char *>(qPrintable(value)),
+                     const_cast<char *>(qPrintable(value)));
+}
+
 void MainWindow::load_edges(const QString &fn)
 {
     m_graph = agopen("xrefgraph", AGDIGRAPH/*STRICT*/);
+    //_agset(m_graph, "area", "0,0,1300,700");
+    _agset(m_graph, "splines", "false");
 
     QFile file(fn);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -77,64 +87,76 @@ Agnode_t * MainWindow::get_or_add_node(const QString &node_name)
         strncpy(node_name_c, node_name.toLocal8Bit(), sizeof(node_name_c));
         node_name_c[sizeof(node_name_c)-1] = 0;
 
-        Agnode_t * newnode = agnode(m_graph, node_name_c);
-        m_name_to_agnode[node_name] = newnode;
+        Agnode_t * graphviz_node = agnode(m_graph, node_name_c);
+//        _agset(newnode, "fixedsize", "true");
+//        _agset(newnode, "height", "90");
+//        _agset(newnode, "width", "15");
+        if (node_name == "ejabberd" || node_name == "ejabberd_router") {
+            m_selected_nodes.insert(graphviz_node);
+        }
+        m_node_info[node_name] = xrefNode(node_name, graphviz_node);
+        m_name_to_agnode[node_name] = graphviz_node;
     }
     return m_name_to_agnode[node_name];
 }
 
-void MainWindow::on_actionDot_triggered()
-{
+void MainWindow::on_actionDot_triggered() {
+    redo_layout("dot");
+}
+
+void MainWindow::on_actionNeato_triggered() {
+    redo_layout("neato");
+}
+
+void MainWindow::on_actionFdp_triggered() {
+    redo_layout("fdp");
+}
+
+void MainWindow::on_actionSfdp_triggered() {
+    redo_layout("sfdp");
+}
+
+void MainWindow::on_actionTwopi_triggered() {
+    redo_layout("twopi");
+}
+
+void MainWindow::on_actionCirco_triggered() {
+    redo_layout("circo");
+}
+
+void MainWindow::on_actionPatchwork_triggered() {
+    redo_layout("patchwork");
+}
+
+void MainWindow::on_actionOsage_triggered() {
+    redo_layout("osage");
+}
+
+void MainWindow::redo_layout(const char * algo) {
+    bool use_spline = m_settings.value("layout/spline", false).toBool();
+
+    if (use_spline) { _agset(m_graph, "splines", "true"); }
+    else { _agset(m_graph, "splines", "false"); }
+
     gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "dot");
+    gvLayout(m_gvc, m_graph, algo);
     this->update();
 }
 
-void MainWindow::on_actionNeato_triggered()
+void MainWindow::on_actionSpline_triggered(bool checked)
 {
-    gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "neato");
+    m_settings.setValue("layout/spline", checked);
+    redo_layout("dot");
+}
+
+void MainWindow::on_actionDraw_in_triggered(bool checked)
+{
+    m_settings.setValue("render/draw_in_edges", checked);
     this->update();
 }
 
-void MainWindow::on_actionFdp_triggered()
+void MainWindow::on_actionDraw_out_triggered(bool checked)
 {
-    gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "fdp");
-    this->update();
-}
-
-void MainWindow::on_actionSfdp_triggered()
-{
-    gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "sfdp");
-    this->update();
-}
-
-void MainWindow::on_actionTwopi_triggered()
-{
-    gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "twopi");
-    this->update();
-}
-
-void MainWindow::on_actionCirco_triggered()
-{
-    gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "circo");
-    this->update();
-}
-
-void MainWindow::on_actionPatchwork_triggered()
-{
-    gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "patchwork");
-    this->update();
-}
-
-void MainWindow::on_actionOsage_triggered()
-{
-    gvFreeLayout(m_gvc, m_graph);
-    gvLayout(m_gvc, m_graph, "osage");
+    m_settings.setValue("render/draw_out_edges", checked);
     this->update();
 }

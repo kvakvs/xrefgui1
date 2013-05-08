@@ -12,12 +12,13 @@ class xrefNode
 {
 public:
     xrefNode();
-    xrefNode(const QString & name);
+    xrefNode(const QString & name, Agnode_t * gv_node);
+
+    Agnode_t * m_graphviz_node = nullptr;
 
     QString m_name;
-//    QSet<QString> m_edges_out;
-//    QSet<QString> m_edges_in; // probably this is extraneous and remove it later
-    QRect m_rect;
+    QRectF m_rect;
+    //bool m_pinned;
 };
 
 
