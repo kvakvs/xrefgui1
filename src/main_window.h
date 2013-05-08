@@ -24,6 +24,8 @@ public:
 
     static MainWindow * m_singleton;
 
+    void selection_toggle(const QString &, Agnode_t *node);
+
     // graph definition
     Agraph_t * m_graph;
     GVC_t * m_gvc;

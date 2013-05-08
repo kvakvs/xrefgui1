@@ -13,6 +13,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *);
 
     //QGraphicsScene scene;
 

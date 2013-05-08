@@ -36,6 +36,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::selection_toggle(const QString &, Agnode_t * node)
+{
+    if (m_selected_nodes.contains(node)) {
+        m_selected_nodes.remove(node);
+    } else {
+        m_selected_nodes.insert(node);
+    }
+}
+
 // Directly use agsafeset which always works, contrarily to agset
 static inline int _agset(void * object, const QString & attr, const QString & value)
 {

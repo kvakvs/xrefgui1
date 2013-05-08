@@ -50,7 +50,7 @@ void DrawThings::arrow_head(QPainter &p, const QLineF & line, const QPointF &poi
 
     QPainterPath path;
     path.addPolygon(arrow_head);
-    p.fillPath(path, Qt::black);
+    p.fillPath(path, p.pen().color());
 }
 
 QPointF DrawThings::nearest_box_corner(const QRectF &rc, const QPointF &p)

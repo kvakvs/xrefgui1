@@ -1,16 +1,20 @@
 #include <QPainter>
 #include <QApplication>
+#include <QMouseEvent>
 
 #include <math.h>
 
 #include "main_window.h"
 #include "graph_render_widget.h"
 #include "render_things.h"
+#include "graph.h"
 
 
 GraphRenderWidget::GraphRenderWidget(QWidget *parent) :
     QWidget(parent)
 {
+//    QObject::connect(this, QWidget::mousePressEvent,
+//    [this](QMouseEvent * e) { this->on_clicked(e); })
 }
 
 GraphRenderWidget::~GraphRenderWidget()
@@ -54,10 +58,10 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
                          font_metrics.width(node->name), font_height);
 
         bool is_node_selected = main->m_selected_nodes.contains(node);
-        painter.setPen(Qt::gray);
 
         // draw OUT edges
         if (draw_out_edges && is_node_selected) {
+            painter.setPen(Qt::red);
             for (Agedge_t * edge = agfstedge(main->m_graph, node);
                  edge != nullptr; edge = agnxtedge(main->m_graph, edge, node))
             {
@@ -76,6 +80,7 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
 
         // draw IN edges
         if (draw_in_edges) {
+            painter.setPen(Qt::blue);
             for (Agedge_t * edge = agfstin(main->m_graph, node);
                  edge != nullptr; edge = agnxtin(main->m_graph, edge))
             {
@@ -111,6 +116,19 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
         painter.drawRect(node_bbox);
 
         // text label
+        painter.setPen(Qt::black);
         painter.drawText(n1pos.x(), n1pos.y() + font_height - font_metrics.descent(), node->name);
     }
+}
+
+void GraphRenderWidget::mousePressEvent(QMouseEvent * e)
+{
+    auto main = MainWindow::m_singleton;
+
+    for (xrefNode & nodeinfo: main->m_node_info) {
+        if (nodeinfo.m_rect.contains(e->x(), e->y())) {
+            main->selection_toggle(nodeinfo.m_name, nodeinfo.m_graphviz_node);
+        }
+    }
+    main->update();
 }
