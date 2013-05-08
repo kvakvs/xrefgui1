@@ -22,24 +22,23 @@ public:
     ~MainWindow();
 
     static MainWindow * m_singleton;
+
     // graph definition
-    xrefGraph m_graph;
+    Agraph_t * m_graph;
+
     unsigned long int m_next_node_id = 1;
-    QMap<QString, unsigned long int> m_name_to_id;
-    QMap<unsigned long int, QString> m_id_to_name;
-    QMap<unsigned long int, xrefNode> m_nodes;
+    QMap<QString, Agnode_t *> m_name_to_agnode;
+    //QMap<QString, xrefNode> m_nodes;
 
 private slots:
-    void on_actionRandom_Layout_triggered();
-
-    void on_actionForce_Layout_triggered();
+    void on_actionDot_triggered();
 
 private:
     Ui::MainWindow * ui = nullptr;
     GraphRenderWidget * m_graph_widget = nullptr;
 
     void load_edges(const QString & fn);
-    unsigned long int get_or_add_node_id(const QString & node_name);
+    Agnode_t * get_or_add_node(const QString & node_name);
 };
 
 #endif // MAIN_WINDOW_H

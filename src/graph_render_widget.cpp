@@ -14,6 +14,12 @@
 GraphRenderWidget::GraphRenderWidget(QWidget *parent) :
     QWidget(parent)
 {
+    m_gvc = gvContext();
+}
+
+GraphRenderWidget::~GraphRenderWidget()
+{
+    gvFreeContext(m_gvc);
 }
 
 class progress_cooling : public boost::linear_cooling<double>
@@ -32,31 +38,16 @@ private:
     //boost::shared_ptr<boost::progress_display> display;
 };
 
-typedef std::vector<xref_point_type> pos_vector_t;
-pos_vector_t g_position_vec;
-
-typedef std::vector<xref_point_type> pos_vector_t;
-typedef boost::iterator_property_map<pos_vector_t::iterator,
-        boost::property_map<xrefGraph, boost::vertex_index_t>::type>
-        pos_map_t;
-pos_map_t g_position;
-
-// type 0: random
+// type 0: dot
 // type 1: 20 steps of fruchterman-reingold
 // type 2: kamada-kawai
 void GraphRenderWidget::graph_layout(int type)
 {
     auto main = MainWindow::m_singleton;
-    boost::minstd_rand rnd_gen;
-    xref_topology_type topo(rnd_gen, -width()/2, -height()/2, width()/2, height()/2);
 
     switch (type) {
     case 0: {
-        g_position_vec.resize(num_vertices(main->m_graph));
-        g_position = pos_map_t(g_position_vec.begin(),
-                               boost::get(boost::vertex_index, main->m_graph));
-        boost::random_graph_layout(main->m_graph, g_position, topo);
-//        boost::random_graph_layout(main->m_graph, boost::get(vertex_position, main->m_graph), topo);
+        gvLayout(m_gvc, main->m_graph, "dot");
         break;
     }
     case 1: {
@@ -70,15 +61,6 @@ void GraphRenderWidget::graph_layout(int type)
 //        boost::kamada_kawai_spring_layout(main->m_graph, g_position, weight,
 //                                          boost::side_length<double>(50.0));
     }
-    }
-
-    //------
-    boost::graph_traits<xrefGraph>::vertex_iterator vi, vi_end;
-//    auto position = boost::get(vertex_position, main->m_graph);
-    for (boost::tie(vi, vi_end) = boost::vertices(main->m_graph); vi != vi_end; ++vi) {
-        const auto x = g_position[*vi][0];
-        const auto y = g_position[*vi][1];
-        main->m_nodes[*vi].m_rect.setRect(x-10, y-10, 20, 20);
     }
 }
 
@@ -94,28 +76,23 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
     painter.setTransform(tr.translate(width()/2.0, height()/2.0));
 
     // draw edges
-    BGL_FORALL_EDGES_T(edge, main->m_graph, xrefGraph) {
-        //auto edge_index = boost::get(boost::edge_index, main->m_graph, edge);
-        auto & node1 = main->m_nodes[boost::source(edge, main->m_graph)];
-        auto & node2 = main->m_nodes[boost::target(edge, main->m_graph)];
-        painter.setPen(Qt::darkGray);
-        painter.drawLine(node1.m_rect.bottomRight(), node2.m_rect.bottomRight());
-    }
+//    for (auto edge = agfstedge(main->m_graph); node != nullptr; node = agnxtedge()) {
+//        //auto edge_index = boost::get(boost::edge_index, main->m_graph, edge);
+//        auto & node1 = main->m_nodes[boost::source(edge, main->m_graph)];
+//        auto & node2 = main->m_nodes[boost::target(edge, main->m_graph)];
+//        painter.setPen(Qt::darkGray);
+//        painter.drawLine(node1.m_rect.bottomRight(), node2.m_rect.bottomRight());
+//    }
 
-    // http://www.boost.org/doc/libs/1_38_0/libs/graph/doc/quick_tour.html
-    // BGL_FORALL_VERTICES_T(v, main->m_graph, xrefGraph)
-    typedef boost::property_map<xrefGraph, boost::vertex_index_t>::type index_map_t;
-    index_map_t index = boost::get(boost::vertex_index, main->m_graph);
-    for (auto vp = boost::vertices(main->m_graph); vp.first != vp.second; ++vp.first)
+    for (auto node = agfstnode(main->m_graph); node != nullptr; node = agnxtnode(main->m_graph, node))
     {
-        auto vertex_id = index[* vp.first];
-        auto & n = main->m_nodes[vertex_id];
+        QRect rc(node->u.coord.x, node->u.coord.y, 20, 20);
 
-        painter.fillRect(n.m_rect, Qt::white);
+        painter.fillRect(rc, Qt::white);
 
         painter.setPen(Qt::black);
-        painter.drawRect(n.m_rect);
+        painter.drawRect(rc);
 
-        painter.drawText(n.m_rect.topLeft() + QPoint(5, 15), n.m_name);
+        painter.drawText(rc.topLeft() + QPoint(5, 15), node->name);
     }
 }

@@ -12,6 +12,8 @@ TARGET = xrefgui
 TEMPLATE = app
 CONFIG += c++11
 
+linux:LIBS += -lgvc -lgraph
+
 SOURCES += main.cpp\
         main_window.cpp \
     graph_render_widget.cpp \

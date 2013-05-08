@@ -33,16 +33,16 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionRandom_Layout"/>
+   <addaction name="actionDot"/>
    <addaction name="actionForce_Layout"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionRandom_Layout">
+  <action name="actionDot">
    <property name="text">
-    <string>Random Layout</string>
+    <string>dot</string>
    </property>
    <property name="toolTip">
-    <string>Relayout whole graph randomly</string>
+    <string>Apply 'dot' layout</string>
    </property>
   </action>
   <action name="actionForce_Layout">
