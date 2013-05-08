@@ -24,9 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     load_edges("edges.json");
 
-    auto w = new GraphRenderWidget(this);
-    ui->centralWidget->layout()->addWidget(w);
-    w->graph_layout(true);
+    m_graph_widget = new GraphRenderWidget(this);
+    ui->centralWidget->layout()->addWidget(m_graph_widget);
+    m_graph_widget->graph_layout(true);
 }
 
 MainWindow::~MainWindow()
@@ -63,7 +63,8 @@ void MainWindow::load_edges(const QString &fn)
 //                    boost::add_vertex(node2_name, m_graph);
 //                }
 //                boost::add_edge_by_label(node1_name, node2_name, m_graph);
-                boost::add_edge(node1_id, node2_id, m_graph);
+                auto e1 = boost::add_edge(node1_id, node2_id, m_graph);
+                boost::put(boost::edge_weight, m_graph, e1, 1.0);
 
 //                auto & node2 = get_or_add_node(node2_name);
 //                node1.m_edges_out.insert(node2_name);
@@ -98,3 +99,15 @@ unsigned long MainWindow::get_or_add_node_id(const QString &node_name)
 //    return m_nodes[node_name];
 //}
 
+
+void MainWindow::on_actionRandom_Layout_triggered()
+{
+    m_graph_widget->graph_layout(true);
+    this->update();
+}
+
+void MainWindow::on_actionForce_Layout_triggered()
+{
+    m_graph_widget->graph_layout(false);
+    this->update();
+}

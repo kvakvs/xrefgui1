@@ -9,7 +9,7 @@ class GraphRenderWidget : public QWidget
     Q_OBJECT
 public:
     explicit GraphRenderWidget(QWidget *parent = 0);
-    void graph_layout(bool init_flag);
+    void graph_layout(int type);
 
 protected:
     void paintEvent(QPaintEvent *);

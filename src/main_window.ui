@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>681</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>
@@ -33,8 +33,26 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionRandom_Layout"/>
+   <addaction name="actionForce_Layout"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionRandom_Layout">
+   <property name="text">
+    <string>Random Layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Relayout whole graph randomly</string>
+   </property>
+  </action>
+  <action name="actionForce_Layout">
+   <property name="text">
+    <string>Force Layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Run few iterations of force layout</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

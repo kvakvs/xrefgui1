@@ -11,6 +11,7 @@
 namespace Ui {
 class MainWindow;
 }
+class GraphRenderWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -28,8 +29,14 @@ public:
     QMap<unsigned long int, QString> m_id_to_name;
     QMap<unsigned long int, xrefNode> m_nodes;
 
+private slots:
+    void on_actionRandom_Layout_triggered();
+
+    void on_actionForce_Layout_triggered();
+
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow * ui = nullptr;
+    GraphRenderWidget * m_graph_widget = nullptr;
 
     void load_edges(const QString & fn);
     unsigned long int get_or_add_node_id(const QString & node_name);
