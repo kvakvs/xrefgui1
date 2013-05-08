@@ -34,7 +34,13 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionDot"/>
-   <addaction name="actionForce_Layout"/>
+   <addaction name="actionNeato"/>
+   <addaction name="actionFdp"/>
+   <addaction name="actionSfdp"/>
+   <addaction name="actionTwopi"/>
+   <addaction name="actionCirco"/>
+   <addaction name="actionPatchwork"/>
+   <addaction name="actionOsage"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionDot">
@@ -45,12 +51,60 @@
     <string>Apply 'dot' layout</string>
    </property>
   </action>
-  <action name="actionForce_Layout">
+  <action name="actionNeato">
    <property name="text">
-    <string>Force Layout</string>
+    <string>neato</string>
    </property>
    <property name="toolTip">
-    <string>Run few iterations of force layout</string>
+    <string>Apply 'neato' layout</string>
+   </property>
+  </action>
+  <action name="actionFdp">
+   <property name="text">
+    <string>fdp</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply 'fdp' layout</string>
+   </property>
+  </action>
+  <action name="actionSfdp">
+   <property name="text">
+    <string>sfdp</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply 'sfdp' layout</string>
+   </property>
+  </action>
+  <action name="actionTwopi">
+   <property name="text">
+    <string>twopi</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply 'twopi' radial layout</string>
+   </property>
+  </action>
+  <action name="actionCirco">
+   <property name="text">
+    <string>circo</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply 'circo' circular layout</string>
+   </property>
+  </action>
+  <action name="actionPatchwork">
+   <property name="text">
+    <string>patchwork</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply 'patchwork' squarified treemaps layout</string>
+   </property>
+  </action>
+  <action name="actionOsage">
+   <property name="text">
+    <string>osage</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply 'osage' clustered layout</string>
    </property>
   </action>
  </widget>

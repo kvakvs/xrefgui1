@@ -25,6 +25,7 @@ public:
 
     // graph definition
     Agraph_t * m_graph;
+    GVC_t * m_gvc;
 
     unsigned long int m_next_node_id = 1;
     QMap<QString, Agnode_t *> m_name_to_agnode;
@@ -32,6 +33,20 @@ public:
 
 private slots:
     void on_actionDot_triggered();
+
+    void on_actionNeato_triggered();
+
+    void on_actionFdp_triggered();
+
+    void on_actionSfdp_triggered();
+
+    void on_actionTwopi_triggered();
+
+    void on_actionCirco_triggered();
+
+    void on_actionPatchwork_triggered();
+
+    void on_actionOsage_triggered();
 
 private:
     Ui::MainWindow * ui = nullptr;

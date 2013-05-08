@@ -14,12 +14,10 @@
 GraphRenderWidget::GraphRenderWidget(QWidget *parent) :
     QWidget(parent)
 {
-    m_gvc = gvContext();
 }
 
 GraphRenderWidget::~GraphRenderWidget()
 {
-    gvFreeContext(m_gvc);
 }
 
 class progress_cooling : public boost::linear_cooling<double>
@@ -38,32 +36,6 @@ private:
     //boost::shared_ptr<boost::progress_display> display;
 };
 
-// type 0: dot
-// type 1: 20 steps of fruchterman-reingold
-// type 2: kamada-kawai
-void GraphRenderWidget::graph_layout(int type)
-{
-    auto main = MainWindow::m_singleton;
-
-    switch (type) {
-    case 0: {
-        gvLayout(m_gvc, main->m_graph, "dot");
-        break;
-    }
-    case 1: {
-//        const int ITERATIONS = 20;
-//        boost::fruchterman_reingold_force_directed_layout
-//                (main->m_graph, g_position, topo, cooling(progress_cooling(ITERATIONS)));
-//        break;
-    }
-    case 2: {
-//        auto weight = boost::get(boost::edge_weight, main->m_graph);
-//        boost::kamada_kawai_spring_layout(main->m_graph, g_position, weight,
-//                                          boost::side_length<double>(50.0));
-    }
-    }
-}
-
 void GraphRenderWidget::paintEvent(QPaintEvent *)
 {
     //graph_layout(false);
@@ -73,21 +45,26 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
 
     auto main = MainWindow::m_singleton;
     QTransform tr;
-    painter.setTransform(tr.translate(width()/2.0, height()/2.0));
-
-    // draw edges
-//    for (auto edge = agfstedge(main->m_graph); node != nullptr; node = agnxtedge()) {
-//        //auto edge_index = boost::get(boost::edge_index, main->m_graph, edge);
-//        auto & node1 = main->m_nodes[boost::source(edge, main->m_graph)];
-//        auto & node2 = main->m_nodes[boost::target(edge, main->m_graph)];
-//        painter.setPen(Qt::darkGray);
-//        painter.drawLine(node1.m_rect.bottomRight(), node2.m_rect.bottomRight());
-//    }
+    auto bb = main->m_graph->u.bb;
+    tr = tr.translate(-bb.LL.x, bb.LL.y);
+    double scalex = width() / (bb.UR.x - bb.LL.x);
+    double scaley = height() / (bb.UR.y - bb.LL.y);
+    tr = tr.scale(std::min(scalex, scaley), std::min(scalex, scaley));
+    painter.setTransform(tr);
 
     for (auto node = agfstnode(main->m_graph); node != nullptr; node = agnxtnode(main->m_graph, node))
     {
         QRect rc(node->u.coord.x, node->u.coord.y, 20, 20);
 
+        // draw edges
+        for (Agedge_t * edge = agfstedge(main->m_graph, node);
+             edge != nullptr; edge = agnxtedge(main->m_graph, edge, node)) {
+            painter.setPen(Qt::darkGray);
+            painter.drawLine(node->u.coord.x, node->u.coord.y,
+                             edge->tail->u.coord.x, edge->tail->u.coord.y);
+        }
+
+        // draw box
         painter.fillRect(rc, Qt::white);
 
         painter.setPen(Qt::black);

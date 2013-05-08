@@ -21,21 +21,23 @@ MainWindow::MainWindow(QWidget *parent) :
     m_singleton = this;
 
     ui->setupUi(this);
-    load_edges("edges.json");
 
     m_graph_widget = new GraphRenderWidget(this);
     ui->centralWidget->layout()->addWidget(m_graph_widget);
-    m_graph_widget->graph_layout(true);
+
+    m_gvc = gvContext();
+    load_edges("edges.json");
+    //m_graph_widget->graph_layout(true);
 }
 
 MainWindow::~MainWindow()
 {
+    gvFreeContext(m_gvc);
     delete ui;
 }
 
 void MainWindow::load_edges(const QString &fn)
 {
-    aginit();
     m_graph = agopen("xrefgraph", AGDIGRAPH/*STRICT*/);
 
     QFile file(fn);
@@ -58,10 +60,13 @@ void MainWindow::load_edges(const QString &fn)
                 auto node2_name = (* n2iter).toString();
                 auto node2 = get_or_add_node(node2_name);
 
-                auto edge = agedge(m_graph, node1, node2);
+                if (node1 != node2) {
+                    auto edge = agedge(m_graph, node1, node2);
+                }
             }
         }
     }
+    gvLayout(m_gvc, m_graph, "dot");
 }
 
 Agnode_t * MainWindow::get_or_add_node(const QString &node_name)
@@ -72,14 +77,64 @@ Agnode_t * MainWindow::get_or_add_node(const QString &node_name)
         strncpy(node_name_c, node_name.toLocal8Bit(), sizeof(node_name_c));
         node_name_c[sizeof(node_name_c)-1] = 0;
 
-        auto newnode = agnode(m_graph, node_name_c);
+        Agnode_t * newnode = agnode(m_graph, node_name_c);
         m_name_to_agnode[node_name] = newnode;
     }
-    return iter.value();
+    return m_name_to_agnode[node_name];
 }
 
 void MainWindow::on_actionDot_triggered()
 {
-    m_graph_widget->graph_layout(0);
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "dot");
+    this->update();
+}
+
+void MainWindow::on_actionNeato_triggered()
+{
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "neato");
+    this->update();
+}
+
+void MainWindow::on_actionFdp_triggered()
+{
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "fdp");
+    this->update();
+}
+
+void MainWindow::on_actionSfdp_triggered()
+{
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "sfdp");
+    this->update();
+}
+
+void MainWindow::on_actionTwopi_triggered()
+{
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "twopi");
+    this->update();
+}
+
+void MainWindow::on_actionCirco_triggered()
+{
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "circo");
+    this->update();
+}
+
+void MainWindow::on_actionPatchwork_triggered()
+{
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "patchwork");
+    this->update();
+}
+
+void MainWindow::on_actionOsage_triggered()
+{
+    gvFreeLayout(m_gvc, m_graph);
+    gvLayout(m_gvc, m_graph, "osage");
     this->update();
 }
