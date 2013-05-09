@@ -25,7 +25,6 @@ public:
     xrefEditableNode(const QString & name);
 
     QString m_name;
-    //QRectF m_rect;
 
     bool m_pinned; // do not move node when changing layout
     bool m_draw_out_edges = false;

@@ -25,36 +25,24 @@ MainWindow::MainWindow(QWidget *parent) :
     m_settings()
 {
     m_singleton = this;
-
     ui->setupUi(this);
 
-//    m_canvas = new QtCanvas(800, 600);
-//    m_canvas_view = new xrefCanvasView(m_canvas, this);
-//    setCentralWidget(m_canvas_view);
-
+    // scene and sceneview
     m_scene = new QGraphicsScene();
     m_scene_view = new QGraphicsView(m_scene, this);
     setCentralWidget(m_scene_view);
 
+    // load JSON data and populate view
     load_source_nodes("edges.json");
     source_to_editable_nodes();
 
-    //m_graph_widget->graph_layout(true);
-
-    // property manager
+    // property manager and property editor tab
     m_variant_manager = new QtVariantPropertyManager(this);
 
     connect(m_variant_manager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
                 this, SLOT(valueChanged(QtProperty *, const QVariant &)));
 
     QtVariantEditorFactory *variantFactory = new QtVariantEditorFactory(this);
-
-    //canvas = new QtCanvas(800, 600);
-    //canvasView = new CanvasView(canvas, this);
-    //setCentralWidget(canvasView);
-
-    //QDockWidget *dock = new QDockWidget(this);
-    //addDockWidget(Qt::RightDockWidgetArea, dock);
 
     m_property_editor = new QtTreePropertyBrowser(ui->dockWidget0);
     m_property_editor->setFactoryForManager(m_variant_manager, variantFactory);
@@ -66,10 +54,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    foreach(auto n, m_source_nodes) { delete n; }
+//    for(auto n = m_source_nodes.begin(); n != m_source_nodes.end(); ++n) {
+//        delete n.value();
+//    }
+    foreach(xrefSourceNode * n, m_source_nodes) {
+        delete n;
+    }
     m_source_nodes.clear();
 
-    foreach(auto n, m_editable_nodes) { delete n; }
+//    for(auto n = m_editable_nodes.begin(); n != m_editable_nodes.end(); ++n) {
+//        delete n.value();
+//    }
+    foreach(xrefEditableNode * n, m_editable_nodes) {
+        delete n;
+    }
     m_editable_nodes.clear();
 
     delete ui;
@@ -77,11 +75,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::selection_toggle(xrefEditableNode * node)
 {
-//    if (m_selected_nodes.contains(node)) {
-//        m_selected_nodes.remove(node);
-//    } else {
-//        m_selected_nodes.insert(node);
-//    }
     m_selected_nodes.clear();
     m_selected_nodes.insert(node);
 
@@ -95,12 +88,10 @@ void MainWindow::selection_toggle(xrefEditableNode * node)
     property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw IN edges"));
     property->setValue(QVariant(node->m_draw_in_edges));
     add_property(property, QLatin1String("draw_in_edges"));
-    //m_property_editor->addProperty(property);
 
     property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw OUT edges"));
     property->setValue(QVariant(node->m_draw_out_edges));
     add_property(property, QLatin1String("draw_out_edges"));
-    //m_property_editor->addProperty(property);
 }
 
 
@@ -109,22 +100,42 @@ void MainWindow::add_property(QtVariantProperty *property, const QString &id)
     m_property_to_name[property] = id;
     m_name_to_property[id] = property;
     /*QtBrowserItem * item =*/ m_property_editor->addProperty(property);
-    //if (idToExpanded.contains(id))
-    //    propertyEditor->setExpanded(item, idToExpanded[id]);
 }
 
 void MainWindow::source_to_editable_nodes()
 {
     // CLEAR USER EDITS! do not call this more than once after first import
-    foreach(auto n, m_editable_nodes) { delete n; }
-    m_editable_nodes.clear();
+    //for(auto n = m_editable_nodes.begin(); n != m_editable_nodes.end(); ++n) {
+    foreach(xrefEditableNode * n, m_editable_nodes) {
+        delete n;
+    }
 
     foreach(xrefSourceNode * s, m_source_nodes) {
-        auto e = new xrefEditableNode(s->m_name);
-        e->setRect(rand() % 1000, rand() % 500, 0, 0);
-        m_editable_nodes.append(e);
+        // Make an editable node (which is also a scene item)
+        auto editable = new xrefEditableNode(s->m_name);
+        editable->setRect(rand() % 1000, rand() % 500, 0, 0);
+        editable->setBrush(QBrush(QColor(255, 255, 224)));
+        editable->setFlag(QGraphicsItem::ItemIsMovable, true);
+        editable->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        editable->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        m_editable_nodes[s->m_name] = editable;
 
-        m_scene->addItem(e);
+        // add node as scene item to scene
+        m_scene->addItem(editable);
+    }
+
+    foreach(xrefSourceNode * s, m_source_nodes) {
+        xrefEditableNode * e = m_editable_nodes[s->m_name];
+        auto p1 = e->rect().topLeft();
+
+        for(auto callee: s->m_callees) {
+            xrefEditableNode * callee_node = m_editable_nodes[callee];
+            auto p2 = callee_node->rect().topLeft();
+
+            //auto edge = new QGraphicsLineItem(QLineF(p1, p2));
+            //e->childItems().append(edge);
+            auto edge = m_scene->addLine(QLineF(p1, p2));
+        }
     }
 }
 
@@ -167,31 +178,10 @@ void MainWindow::load_source_nodes(const QString &fn)
                 src_node->m_callees.insert(callee_name);
             } // for callee list
 
-            m_source_nodes.append(src_node);
+            m_source_nodes[node1_name] = src_node;
         } // for json keys
     } // if file
 }
-
-//Agnode_t * MainWindow::get_or_add_node(const QString &node_name)
-//{
-//    auto iter = m_name_to_agnode.find(node_name);
-//    if (iter == m_name_to_agnode.end()) {
-//        char node_name_c[128];
-//        strncpy(node_name_c, node_name.toLocal8Bit(), sizeof(node_name_c));
-//        node_name_c[sizeof(node_name_c)-1] = 0;
-
-//        Agnode_t * graphviz_node = agnode(m_graph, node_name_c);
-////        _agset(newnode, "fixedsize", "true");
-////        _agset(newnode, "height", "90");
-////        _agset(newnode, "width", "15");
-//        if (node_name == "ejabberd" || node_name == "ejabberd_router") {
-//            m_selected_nodes.insert(graphviz_node);
-//        }
-//        m_node_info[node_name] = xrefEditableNode(node_name, graphviz_node);
-//        m_name_to_agnode[node_name] = graphviz_node;
-//    }
-//    return m_name_to_agnode[node_name];
-//}
 
 void MainWindow::on_actionDot_triggered() {
     if (m_gv) m_gv->redo_layout("dot");

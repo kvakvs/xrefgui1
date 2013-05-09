@@ -49,11 +49,11 @@ public:
 
     /// JSON data decoded is stored here read-only, this is used to fill
     /// m_editable_nodes without sizes, positions and other attributes
-    QList<xrefSourceNode *> m_source_nodes;
+    QMap<QString, xrefSourceNode *> m_source_nodes;
 
     /// Editable items saved separately, modelled after m_source_nodes. User is
     /// allowed to do changes to this structure. This is used to fill m_scene
-    QList<xrefEditableNode *> m_editable_nodes;
+    QMap<QString, xrefEditableNode *> m_editable_nodes;
 
     /// Selection on screen
     QSet<xrefEditableNode *> m_selected_nodes;

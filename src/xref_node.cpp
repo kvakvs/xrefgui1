@@ -1,4 +1,6 @@
 #include <QPainter>
+#include <QApplication>
+#include <QPalette>
 
 #include <graphviz/gvc.h>
 
@@ -29,12 +31,17 @@ void xrefEditableNode::paint(QPainter *painter,
     }
 
     // box
-    painter->fillRect(bb, Qt::white);
-    painter->setPen(Qt::black);
+    if (focusItem() == this) {
+        auto color_selected = QApplication::palette().color(QPalette::Highlight);
+        painter->fillRect(bb, QBrush(color_selected));
+    } else {
+        painter->fillRect(bb, brush());
+    }
+    painter->setPen(pen());
     painter->drawRect(bb);
 
     // text label
-    painter->setPen(Qt::black);
+    painter->setPen(pen());
     auto text_start = bb.topLeft(); // where to draw name of the box
     painter->drawText(text_start.x(),
                       text_start.y() + font_height - font_metrics.descent(),
