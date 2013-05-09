@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QPoint>
 
+#include <graphviz/gvc.h>
+
 class DrawThings
 {
 public:

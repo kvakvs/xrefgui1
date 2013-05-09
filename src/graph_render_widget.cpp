@@ -7,21 +7,21 @@
 #include "main_window.h"
 #include "graph_render_widget.h"
 #include "render_things.h"
-#include "graph.h"
+#include "xref_node.h"
 
 
-GraphRenderWidget::GraphRenderWidget(QWidget *parent) :
+xrefGraphWidget::xrefGraphWidget(QWidget *parent) :
     QWidget(parent)
 {
 //    QObject::connect(this, QWidget::mousePressEvent,
 //    [this](QMouseEvent * e) { this->on_clicked(e); })
 }
 
-GraphRenderWidget::~GraphRenderWidget()
+xrefGraphWidget::~xrefGraphWidget()
 {
 }
 
-void GraphRenderWidget::paintEvent(QPaintEvent *)
+void xrefGraphWidget::paintEvent(QPaintEvent *)
 {
     //graph_layout(false);
 
@@ -29,9 +29,9 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
 
     QFontMetrics font_metrics = painter.fontMetrics();
     painter.setRenderHint(QPainter::Antialiasing);
-
     auto main = MainWindow::m_singleton;
 
+#if 0
     // settings
 //    bool draw_out_edges = main->m_settings.value("render/draw_out_edges", true).toBool();
 //    bool draw_in_edges = main->m_settings.value("render/draw_in_edges", false).toBool();
@@ -123,16 +123,18 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
             painter.drawRect(selected_bbox);
         }
     }
+#endif
 }
-
-void GraphRenderWidget::mousePressEvent(QMouseEvent * e)
+/*
+void xrefGraphWidget::mousePressEvent(QMouseEvent * e)
 {
     auto main = MainWindow::m_singleton;
 
-    for (xrefNode & nodeinfo: main->m_node_info) {
+    foreach(xrefEditableNode & nodeinfo, main->m_node_info) {
         if (nodeinfo.m_rect.contains(e->x(), e->y())) {
             main->selection_toggle(nodeinfo.m_name, nodeinfo.m_graphviz_node);
         }
     }
     main->update();
 }
+*/

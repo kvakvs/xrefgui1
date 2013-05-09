@@ -6,23 +6,30 @@
 #include <QRect>
 #include <QPoint>
 
-#include <graphviz/gvc.h>
+class Agnode_t;
 
-class xrefNode
+/// Describes a node information as loaded from JSON
+class xrefSourceNode
 {
 public:
-    xrefNode();
-    xrefNode(const QString & name, Agnode_t * gv_node);
+    QString m_name;
+    QSet<QString> m_callees;
+};
 
-    Agnode_t * m_graphviz_node = nullptr;
+/// Describes a visible node on screen.
+class xrefEditableNode
+{
+public:
+    xrefEditableNode();
+    xrefEditableNode(const QString & name, Agnode_t * gv_node);
 
     QString m_name;
     QRectF m_rect;
+
+    Agnode_t * m_graphviz_node = nullptr;
     bool m_pinned; // do not move node when changing layout
     bool m_draw_out_edges = false;
     bool m_draw_in_edges = false;
-    QSet<QString> m_groups;
 };
-
 
 #endif // GRAPH_CLASSES_H

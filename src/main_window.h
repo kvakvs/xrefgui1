@@ -6,17 +6,26 @@
 #include <QSet>
 #include <QString>
 #include <QSettings>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 #include "xref_node.h"
 
 namespace Ui {
 class MainWindow;
 }
-class GraphRenderWidget;
+
+//class xrefCanvasView;
+//class xrefGraphWidget;
+class xrefGraphvizGraph;
+class xrefEditableNode;
+class xrefSourceNode;
+
 class QtVariantPropertyManager;
 class QtTreePropertyBrowser;
 class QtVariantProperty;
 class QtProperty;
+//class QtCanvas;
 
 class MainWindow : public QMainWindow
 {
@@ -28,24 +37,29 @@ public:
 
     static MainWindow * m_singleton;
 
-    void selection_toggle(const QString &name, Agnode_t *node);
+    void selection_toggle(xrefEditableNode *node);
 
-    // graph definition
-    Agraph_t * m_graph;
-    GVC_t * m_gvc;
-
-    //unsigned long int m_next_node_id = 1;
-    QMap<QString, Agnode_t *> m_name_to_agnode;
-    // currently selected item or items in editor
-    QSet<Agnode_t *> m_selected_nodes;
-    // additional attributes like rectangle on screen, pin, type etc
-    QMap<QString, xrefNode> m_node_info;
+public:
+    /// property finders (prop* by name, and name by prop*)
     QMap<QString, QtProperty *> m_name_to_property;
     QMap<QtProperty *, QString> m_property_to_name;
 
+    /// Temporary holder for graphviz graph (for relayout)
+    xrefGraphvizGraph * m_gv = nullptr;
+
+    /// JSON data decoded is stored here read-only, this is used to fill
+    /// m_editable_nodes without sizes, positions and other attributes
+    QList<xrefSourceNode *> m_source_nodes;
+
+    /// Editable items saved separately, modelled after m_source_nodes. User is
+    /// allowed to do changes to this structure. This is used to fill m_scene
+    QList<xrefEditableNode *> m_editable_nodes;
+
+    /// Selection on screen
+    QSet<xrefEditableNode *> m_selected_nodes;
+
+    /// Program options and settings
     QSettings m_settings;
-    QtVariantPropertyManager * m_variant_manager;
-    QtTreePropertyBrowser * m_property_editor;
 
 private slots:
     void on_actionDot_triggered();
@@ -61,11 +75,26 @@ private slots:
 
 private:
     Ui::MainWindow * ui = nullptr;
-    GraphRenderWidget * m_graph_widget = nullptr;
 
-    void load_edges(const QString & fn);
-    Agnode_t * get_or_add_node(const QString & node_name);
-    void redo_layout(const char * algo);
+    //xrefGraphWidget * m_graph_widget = nullptr;
+
+    //xrefCanvasView * m_canvas_view = nullptr;
+    //QtCanvas * m_canvas = nullptr;
+
+    /// Holds visible scene with all graph nodes, allows for very large object
+    /// count and uses heavy 2D optimizations. Modeled after m_editable_nodes
+    /// Scene cannot render itself, only contains stuff
+    QGraphicsScene * m_scene = nullptr;
+
+    /// Display component for scene. Renders scene contents
+    QGraphicsView * m_scene_view = nullptr;
+
+    QtVariantPropertyManager * m_variant_manager;
+    QtTreePropertyBrowser * m_property_editor;
+
+private:
+    void load_source_nodes(const QString & fn);
+//    Agnode_t * get_or_add_node(const QString & node_name);
     void add_property(QtVariantProperty *property, const QString &id);
 };
 

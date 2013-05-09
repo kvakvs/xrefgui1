@@ -4,16 +4,17 @@
 //#include <QGraphicsScene>
 #include <QWidget>
 
-class GraphRenderWidget : public QWidget
+
+class xrefGraphWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GraphRenderWidget(QWidget *parent = 0);
-    virtual ~GraphRenderWidget();
+    explicit xrefGraphWidget(QWidget *parent = 0);
+    virtual ~xrefGraphWidget();
 
 protected:
     void paintEvent(QPaintEvent *);
-    void mousePressEvent(QMouseEvent *);
+    //void mousePressEvent(QMouseEvent *);
 
     //QGraphicsScene scene;
 
