@@ -76,11 +76,6 @@ private slots:
 private:
     Ui::MainWindow * ui = nullptr;
 
-    //xrefGraphWidget * m_graph_widget = nullptr;
-
-    //xrefCanvasView * m_canvas_view = nullptr;
-    //QtCanvas * m_canvas = nullptr;
-
     /// Holds visible scene with all graph nodes, allows for very large object
     /// count and uses heavy 2D optimizations. Modeled after m_editable_nodes
     /// Scene cannot render itself, only contains stuff
@@ -93,9 +88,15 @@ private:
     QtTreePropertyBrowser * m_property_editor;
 
 private:
+    /// Reads input JSON into source nodes, source nodes must remain read-only after
+    /// they are loaded
     void load_source_nodes(const QString & fn);
-//    Agnode_t * get_or_add_node(const QString & node_name);
+
     void add_property(QtVariantProperty *property, const QString &id);
+
+    /// Generates list of editable nodes from source nodes (the first run). Erases
+    /// all user work, so use this only once when editable nodes is empty
+    void source_to_editable_nodes();
 };
 
 #endif // MAIN_WINDOW_H

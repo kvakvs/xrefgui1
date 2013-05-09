@@ -9,13 +9,13 @@
 
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
-#include "qtcanvas.h"
+//#include "qtcanvas.h"
 
 #include "main_window.h"
 #include "ui_main_window.h"
 #include "graph_render_widget.h"
 #include "xref_node.h"
-#include "canvas_view.h"
+//#include "canvas_view.h"
 #include "graphviz_graph.h"
 
 MainWindow * MainWindow::m_singleton = nullptr;
@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(m_scene_view);
 
     load_source_nodes("edges.json");
+    source_to_editable_nodes();
+
     //m_graph_widget->graph_layout(true);
 
     // property manager
@@ -109,6 +111,21 @@ void MainWindow::add_property(QtVariantProperty *property, const QString &id)
     /*QtBrowserItem * item =*/ m_property_editor->addProperty(property);
     //if (idToExpanded.contains(id))
     //    propertyEditor->setExpanded(item, idToExpanded[id]);
+}
+
+void MainWindow::source_to_editable_nodes()
+{
+    // CLEAR USER EDITS! do not call this more than once after first import
+    foreach(auto n, m_editable_nodes) { delete n; }
+    m_editable_nodes.clear();
+
+    foreach(xrefSourceNode * s, m_source_nodes) {
+        auto e = new xrefEditableNode(s->m_name);
+        e->setRect(rand() % 1000, rand() % 500, 0, 0);
+        m_editable_nodes.append(e);
+
+        m_scene->addItem(e);
+    }
 }
 
 void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
