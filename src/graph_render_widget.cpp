@@ -33,8 +33,8 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
     auto main = MainWindow::m_singleton;
 
     // settings
-    bool draw_out_edges = main->m_settings.value("render/draw_out_edges", true).toBool();
-    bool draw_in_edges = main->m_settings.value("render/draw_in_edges", false).toBool();
+//    bool draw_out_edges = main->m_settings.value("render/draw_out_edges", true).toBool();
+//    bool draw_in_edges = main->m_settings.value("render/draw_in_edges", false).toBool();
     bool use_spline = main->m_settings.value("layout/spline", false).toBool();
 
     auto color_selected = QApplication::palette().color(QPalette::Highlight);
@@ -57,10 +57,12 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
         QRectF node_bbox(n1pos.x(), n1pos.y(),
                          font_metrics.width(node->name), font_height);
 
+        auto & node1_info = main->m_node_info[node->name];
+
         bool is_node_selected = main->m_selected_nodes.contains(node);
 
         // draw OUT edges
-        if (draw_out_edges && is_node_selected) {
+        if (node1_info.m_draw_out_edges) {
             painter.setPen(Qt::red);
             for (Agedge_t * edge = agfstedge(main->m_graph, node);
                  edge != nullptr; edge = agnxtedge(main->m_graph, edge, node))
@@ -79,21 +81,21 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
         }
 
         // draw IN edges
-        if (draw_in_edges) {
-            painter.setPen(Qt::blue);
-            for (Agedge_t * edge = agfstin(main->m_graph, node);
-                 edge != nullptr; edge = agnxtin(main->m_graph, edge))
-            {
-                if (! main->m_selected_nodes.contains(edge->tail)) continue;
+        painter.setPen(Qt::blue);
+        for (Agedge_t * edge = agfstin(main->m_graph, node);
+             edge != nullptr; edge = agnxtin(main->m_graph, edge))
+        {
+            auto & node2_info = main->m_node_info[edge->tail->name];
+            if (! node2_info.m_draw_in_edges) continue;
+            //                if (! main->m_selected_nodes.contains(edge->tail)) continue;
 
-                if (use_spline) {
-                    DrawThings::spline(painter, edge,
-                                       translatex, translatey, scalex, scaley);
-                } else {
-                    QPointF n2pos((edge->tail->u.coord.x + translatex) * scalex,
-                                  (edge->tail->u.coord.y + translatey) * scaley);
-                    DrawThings::arrow(painter, n1pos, n2pos);
-                }
+            if (use_spline) {
+                DrawThings::spline(painter, edge,
+                                   translatex, translatey, scalex, scaley);
+            } else {
+                QPointF n2pos((edge->tail->u.coord.x + translatex) * scalex,
+                              (edge->tail->u.coord.y + translatey) * scaley);
+                DrawThings::arrow(painter, n1pos, n2pos);
             }
         }
 
@@ -102,22 +104,24 @@ void GraphRenderWidget::paintEvent(QPaintEvent *)
         node_bbox.translate(-half_box_size);
         n1pos -= half_box_size;
 
-        // save calculated box to xrefNode struct
-        auto & node_info = main->m_node_info[node->name];
-        node_info.m_rect = node_bbox;
-
         // draw bounding box and rectangle around it
-        if (is_node_selected) {
-            painter.fillRect(node_bbox, QBrush(color_selected));
-        } else {
-            painter.fillRect(node_bbox, Qt::white);
-        }
+        painter.fillRect(node_bbox, Qt::white);
         painter.setPen(Qt::black);
         painter.drawRect(node_bbox);
+        // save calculated box to xrefNode struct
+        node1_info.m_rect = node_bbox;
 
         // text label
         painter.setPen(Qt::black);
         painter.drawText(n1pos.x(), n1pos.y() + font_height - font_metrics.descent(), node->name);
+
+        // if selected, draw selection mark
+        if (is_node_selected) {
+            QRectF selected_bbox(node_bbox);
+            selected_bbox.adjust(-3, -3, +3, +3);
+            painter.setPen(QPen(color_selected, 2));
+            painter.drawRect(selected_bbox);
+        }
     }
 }
 

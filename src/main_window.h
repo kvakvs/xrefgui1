@@ -7,12 +7,16 @@
 #include <QString>
 #include <QSettings>
 
-#include "graph.h"
+#include "xref_node.h"
 
 namespace Ui {
 class MainWindow;
 }
 class GraphRenderWidget;
+class QtVariantPropertyManager;
+class QtTreePropertyBrowser;
+class QtVariantProperty;
+class QtProperty;
 
 class MainWindow : public QMainWindow
 {
@@ -24,20 +28,24 @@ public:
 
     static MainWindow * m_singleton;
 
-    void selection_toggle(const QString &, Agnode_t *node);
+    void selection_toggle(const QString &name, Agnode_t *node);
 
     // graph definition
     Agraph_t * m_graph;
     GVC_t * m_gvc;
 
-    unsigned long int m_next_node_id = 1;
+    //unsigned long int m_next_node_id = 1;
     QMap<QString, Agnode_t *> m_name_to_agnode;
-    //QMap<QString, xrefNode> m_nodes;
+    // currently selected item or items in editor
     QSet<Agnode_t *> m_selected_nodes;
     // additional attributes like rectangle on screen, pin, type etc
     QMap<QString, xrefNode> m_node_info;
+    QMap<QString, QtProperty *> m_name_to_property;
+    QMap<QtProperty *, QString> m_property_to_name;
 
     QSettings m_settings;
+    QtVariantPropertyManager * m_variant_manager;
+    QtTreePropertyBrowser * m_property_editor;
 
 private slots:
     void on_actionDot_triggered();
@@ -49,8 +57,7 @@ private slots:
     void on_actionPatchwork_triggered();
     void on_actionOsage_triggered();
     void on_actionSpline_triggered(bool checked);
-    void on_actionDraw_in_triggered(bool checked);
-    void on_actionDraw_out_triggered(bool checked);
+    void on_property_value_changed(QtProperty *p, const QVariant &v);
 
 private:
     Ui::MainWindow * ui = nullptr;
@@ -59,6 +66,7 @@ private:
     void load_edges(const QString & fn);
     Agnode_t * get_or_add_node(const QString & node_name);
     void redo_layout(const char * algo);
+    void add_property(QtVariantProperty *property, const QString &id);
 };
 
 #endif // MAIN_WINDOW_H

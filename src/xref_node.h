@@ -18,7 +18,10 @@ public:
 
     QString m_name;
     QRectF m_rect;
-    //bool m_pinned;
+    bool m_pinned; // do not move node when changing layout
+    bool m_draw_out_edges = false;
+    bool m_draw_in_edges = false;
+    QSet<QString> m_groups;
 };
 
 

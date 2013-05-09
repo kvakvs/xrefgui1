@@ -1,4 +1,4 @@
-#include "graph.h"
+#include "xref_node.h"
 
 xrefNode::xrefNode(): m_name()
 {

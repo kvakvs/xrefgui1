@@ -17,12 +17,17 @@ linux:LIBS += -lgvc -lgraph
 SOURCES += main.cpp\
         main_window.cpp \
     graph_render_widget.cpp \
-    graph.cpp \
-    render_things.cpp
+    render_things.cpp \
+    xref_node.cpp
 
 HEADERS  += main_window.h \
     graph_render_widget.h \
-    graph.h \
-    render_things.h
+    render_things.h \
+    xref_node.h
 
 FORMS    += main_window.ui
+
+RESOURCES +=
+
+INCLUDEPATH += ../qtpropertybrowser/src
+include(../qtpropertybrowser/src/qtpropertybrowser.pri)

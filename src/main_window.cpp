@@ -7,10 +7,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "qtvariantproperty.h"
+#include "qttreepropertybrowser.h"
+
 #include "main_window.h"
 #include "ui_main_window.h"
 #include "graph_render_widget.h"
-#include "graph.h"
+#include "xref_node.h"
 
 MainWindow * MainWindow::m_singleton = nullptr;
 
@@ -28,6 +31,31 @@ MainWindow::MainWindow(QWidget *parent) :
     m_gvc = gvContext();
     load_edges("edges.json");
     //m_graph_widget->graph_layout(true);
+
+    // property manager
+    m_variant_manager = new QtVariantPropertyManager(this);
+
+    connect(m_variant_manager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
+                this, SLOT(valueChanged(QtProperty *, const QVariant &)));
+
+    QtVariantEditorFactory *variantFactory = new QtVariantEditorFactory(this);
+
+    //canvas = new QtCanvas(800, 600);
+    //canvasView = new CanvasView(canvas, this);
+    //setCentralWidget(canvasView);
+
+    //QDockWidget *dock = new QDockWidget(this);
+    //addDockWidget(Qt::RightDockWidgetArea, dock);
+
+    m_property_editor = new QtTreePropertyBrowser(ui->dockWidget0);
+    m_property_editor->setFactoryForManager(m_variant_manager, variantFactory);
+    ui->dockWidget0->setWidget(m_property_editor);
+
+//    QObject::connect(m_variant_manager, QtVariantPropertyManager::valueChanged,
+//                     [this](QtProperty *p, const QVariant &v)
+//                     { this->on_property_value_changed(p, v); })
+    connect(m_variant_manager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
+            this, SLOT(on_property_value_changed(QtProperty *, const QVariant &)));
 }
 
 MainWindow::~MainWindow()
@@ -36,13 +64,33 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::selection_toggle(const QString &, Agnode_t * node)
+void MainWindow::selection_toggle(const QString & name, Agnode_t * node)
 {
-    if (m_selected_nodes.contains(node)) {
-        m_selected_nodes.remove(node);
-    } else {
-        m_selected_nodes.insert(node);
-    }
+//    if (m_selected_nodes.contains(node)) {
+//        m_selected_nodes.remove(node);
+//    } else {
+//        m_selected_nodes.insert(node);
+//    }
+    m_selected_nodes.clear();
+    m_selected_nodes.insert(node);
+
+    // property editor
+    QtVariantProperty * property;
+    auto & node_info = m_node_info[name];
+    m_property_editor->clear();
+    m_variant_manager->clear();
+    m_name_to_property.clear();
+    m_property_to_name.clear();
+
+    property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw IN edges"));
+    property->setValue(QVariant(node_info.m_draw_in_edges));
+    add_property(property, QLatin1String("draw_in_edges"));
+    //m_property_editor->addProperty(property);
+
+    property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw OUT edges"));
+    property->setValue(QVariant(node_info.m_draw_out_edges));
+    add_property(property, QLatin1String("draw_out_edges"));
+    //m_property_editor->addProperty(property);
 }
 
 // Directly use agsafeset which always works, contrarily to agset
@@ -51,6 +99,33 @@ static inline int _agset(void * object, const QString & attr, const QString & va
     return agsafeset(object, const_cast<char *>(qPrintable(attr)),
                      const_cast<char *>(qPrintable(value)),
                      const_cast<char *>(qPrintable(value)));
+}
+
+
+void MainWindow::add_property(QtVariantProperty *property, const QString &id)
+{
+    m_property_to_name[property] = id;
+    m_name_to_property[id] = property;
+    /*QtBrowserItem * item =*/ m_property_editor->addProperty(property);
+    //if (idToExpanded.contains(id))
+    //    propertyEditor->setExpanded(item, idToExpanded[id]);
+}
+
+void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
+{
+    auto prop_name = m_property_to_name[p];
+
+    foreach(Agnode_t * sel, m_selected_nodes) {
+        auto & node_info = m_node_info[sel->name];
+
+        if (prop_name == "draw_in_edges") {
+            node_info.m_draw_in_edges = v.toBool();
+        }
+        if (prop_name == "draw_out_edges") {
+            node_info.m_draw_out_edges = v.toBool();
+        }
+    }
+    this->update();
 }
 
 void MainWindow::load_edges(const QString &fn)
@@ -80,7 +155,8 @@ void MainWindow::load_edges(const QString &fn)
                 auto node2 = get_or_add_node(node2_name);
 
                 if (node1 != node2) {
-                    auto edge = agedge(m_graph, node1, node2);
+                    /*auto edge = */
+                    agedge(m_graph, node1, node2);
                 }
             }
         }
@@ -156,16 +232,4 @@ void MainWindow::on_actionSpline_triggered(bool checked)
 {
     m_settings.setValue("layout/spline", checked);
     redo_layout("dot");
-}
-
-void MainWindow::on_actionDraw_in_triggered(bool checked)
-{
-    m_settings.setValue("render/draw_in_edges", checked);
-    this->update();
-}
-
-void MainWindow::on_actionDraw_out_triggered(bool checked)
-{
-    m_settings.setValue("render/draw_out_edges", checked);
-    this->update();
 }
