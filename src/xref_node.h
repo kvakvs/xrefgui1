@@ -1,5 +1,5 @@
-#ifndef GRAPH_CLASSES_H
-#define GRAPH_CLASSES_H
+#ifndef XREF_NODE_H
+#define XREF_NODE_H
 
 #include <QSet>
 #include <QString>
@@ -17,21 +17,30 @@ public:
     QSet<QString> m_callees;
 };
 
+class xrefEditableEdge;
+
 /// Describes a visible node on screen.
 class xrefEditableNode: public QGraphicsRectItem
 {
 public:
-    xrefEditableNode();
+    //xrefEditableNode();
     xrefEditableNode(const QString & name);
+    virtual ~xrefEditableNode() {}
 
+    QPointF get_attach_point_for_edge();
+
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                       QWidget *widget);
+    //virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+
+public:
     QString m_name;
+    QList<xrefEditableEdge *> m_linked_edges;
 
     bool m_pinned; // do not move node when changing layout
     bool m_draw_out_edges = false;
     bool m_draw_in_edges = false;
-
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                       QWidget *widget);
 };
 
-#endif // GRAPH_CLASSES_H
+#endif // XREF_NODE_H

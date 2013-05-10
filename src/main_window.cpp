@@ -14,9 +14,10 @@
 #include "main_window.h"
 #include "ui_main_window.h"
 #include "graph_render_widget.h"
-#include "xref_node.h"
 //#include "canvas_view.h"
 #include "graphviz_graph.h"
+#include "xref_node.h"
+#include "xref_edge.h"
 
 MainWindow * MainWindow::m_singleton = nullptr;
 
@@ -124,17 +125,18 @@ void MainWindow::source_to_editable_nodes()
         m_scene->addItem(editable);
     }
 
-    foreach(xrefSourceNode * s, m_source_nodes) {
-        xrefEditableNode * e = m_editable_nodes[s->m_name];
-        auto p1 = e->rect().topLeft();
+    foreach(xrefSourceNode * caller_src_node, m_source_nodes) {
+        xrefEditableNode * caller_node = m_editable_nodes[caller_src_node->m_name];
+        //auto p1 = node1->rect().topLeft();
 
-        for(auto callee: s->m_callees) {
+        for(auto callee: caller_src_node->m_callees) {
             xrefEditableNode * callee_node = m_editable_nodes[callee];
-            auto p2 = callee_node->rect().topLeft();
+            //auto p2 = callee_node->rect().topLeft();
 
-            //auto edge = new QGraphicsLineItem(QLineF(p1, p2));
-            //e->childItems().append(edge);
-            auto edge = m_scene->addLine(QLineF(p1, p2));
+            auto edge = new xrefEditableEdge(caller_node, callee_node);
+            caller_node->m_linked_edges.append(edge);
+            callee_node->m_linked_edges.append(edge);
+            m_scene->addItem(edge);
         }
     }
 }

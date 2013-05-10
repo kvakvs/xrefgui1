@@ -1,18 +1,25 @@
 #include <QPainter>
 #include <QApplication>
 #include <QPalette>
+#include <QGraphicsScene>
 
 #include <graphviz/gvc.h>
 
 #include "xref_node.h"
+#include "xref_edge.h"
 
-xrefEditableNode::xrefEditableNode(): m_name()
-{
-}
+//xrefEditableNode::xrefEditableNode(): m_name()
+//{
+//}
 
 xrefEditableNode::xrefEditableNode(const QString &name)
     : m_name(name)
 {
+}
+
+QPointF xrefEditableNode::get_attach_point_for_edge()
+{
+    return sceneBoundingRect().center();
 }
 
 void xrefEditableNode::paint(QPainter *painter,
@@ -47,3 +54,29 @@ void xrefEditableNode::paint(QPainter *painter,
                       text_start.y() + font_height - font_metrics.descent(),
                       m_name);
 }
+
+void xrefEditableNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsRectItem::mouseMoveEvent(event);
+
+    for(xrefEditableEdge * edge: m_linked_edges) {
+        edge->update_edge_coords();
+    }
+}
+
+//QVariant xrefEditableNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+//{
+//    if (change == QGraphicsItem::ItemSelectedHasChanged
+//            || change == QGraphicsItem::ItemSelectedChange
+//            || change == QGraphicsItem::ItemPositionChange
+//            || change == QGraphicsItem::ItemPositionHasChanged
+//            )
+//    {
+//        // only interested in position change
+//        for(xrefEditableEdge * edge: m_linked_edges) {
+//            edge->update_edge_coords();
+//        }
+//    }
+//    return value;
+//}
+
