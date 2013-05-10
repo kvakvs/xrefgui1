@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // scene and sceneview
     m_scene = new QGraphicsScene();
     m_scene_view = new QGraphicsView(m_scene, this);
+    m_scene_view->setRenderHint(QPainter::Antialiasing, false);
     setCentralWidget(m_scene_view);
 
     // load JSON data and populate view
@@ -77,22 +78,27 @@ MainWindow::~MainWindow()
 void MainWindow::selection_toggle(xrefEditableNode * node)
 {
     m_selected_nodes.clear();
-    m_selected_nodes.insert(node);
+    if (node) {
+        m_selected_nodes.insert(node);
+    }
 
     // property editor
-    QtVariantProperty * property;
     m_property_editor->clear();
     m_variant_manager->clear();
     m_name_to_property.clear();
     m_property_to_name.clear();
 
-    property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw IN edges"));
-    property->setValue(QVariant(node->m_draw_in_edges));
-    add_property(property, QLatin1String("draw_in_edges"));
+    if (node) {
+        QtVariantProperty * property;
 
-    property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw OUT edges"));
-    property->setValue(QVariant(node->m_draw_out_edges));
-    add_property(property, QLatin1String("draw_out_edges"));
+        property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw IN edges"));
+        property->setValue(QVariant(node->m_draw_in_edges));
+        add_property(property, QLatin1String("draw_in_edges"));
+
+        property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw OUT edges"));
+        property->setValue(QVariant(node->m_draw_out_edges));
+        add_property(property, QLatin1String("draw_out_edges"));
+    }
 }
 
 
@@ -122,6 +128,7 @@ void MainWindow::source_to_editable_nodes()
         m_editable_nodes[s->m_name] = editable;
 
         // add node as scene item to scene
+        editable->setZValue(20);
         m_scene->addItem(editable);
     }
 
@@ -134,11 +141,13 @@ void MainWindow::source_to_editable_nodes()
             //auto p2 = callee_node->rect().topLeft();
 
             auto edge = new xrefEditableEdge(caller_node, callee_node);
+            edge->setZValue(10);
             caller_node->m_linked_edges.append(edge);
             callee_node->m_linked_edges.append(edge);
             m_scene->addItem(edge);
         }
     }
+    m_scene_view->update();
 }
 
 void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)

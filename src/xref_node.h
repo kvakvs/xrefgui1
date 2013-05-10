@@ -31,7 +31,7 @@ public:
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                        QWidget *widget);
-    //virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 public:

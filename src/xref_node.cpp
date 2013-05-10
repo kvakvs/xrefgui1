@@ -5,6 +5,7 @@
 
 #include <graphviz/gvc.h>
 
+#include "main_window.h" // do we want this dependency here?
 #include "xref_node.h"
 #include "xref_edge.h"
 
@@ -64,19 +65,23 @@ void xrefEditableNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-//QVariant xrefEditableNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
-//{
-//    if (change == QGraphicsItem::ItemSelectedHasChanged
-//            || change == QGraphicsItem::ItemSelectedChange
-//            || change == QGraphicsItem::ItemPositionChange
-//            || change == QGraphicsItem::ItemPositionHasChanged
-//            )
-//    {
-//        // only interested in position change
-//        for(xrefEditableEdge * edge: m_linked_edges) {
-//            edge->update_edge_coords();
-//        }
-//    }
-//    return value;
-//}
+QVariant xrefEditableNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+    if (change == QGraphicsItem::ItemSelectedChange)
+    {
+        // do we want this dependency here?
+        auto main = MainWindow::m_singleton;
+
+        if (value == true) {
+            // do stuff if selected
+            main->selection_toggle(this);
+        }
+        else {
+            // do stuff if not selected
+            main->selection_toggle(nullptr);
+        }
+    }
+
+    return QGraphicsItem::itemChange(change, value);
+}
 
