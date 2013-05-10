@@ -20,14 +20,16 @@ SOURCES += main.cpp\
     render_things.cpp \
     xref_node.cpp \
     graphviz_graph.cpp \
-    xref_edge.cpp
+    xref_edge.cpp \
+    xref_graph.cpp
 
 HEADERS  += main_window.h \
     graph_render_widget.h \
     render_things.h \
     xref_node.h \
     graphviz_graph.h \
-    xref_edge.h
+    xref_edge.h \
+    xref_graph.h
 
 FORMS    += main_window.ui
 

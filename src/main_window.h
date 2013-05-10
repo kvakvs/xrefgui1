@@ -10,6 +10,7 @@
 #include <QGraphicsView>
 
 #include "xref_node.h"
+#include "xref_graph.h"
 
 namespace Ui {
 class MainWindow;
@@ -44,22 +45,19 @@ public:
     QMap<QString, QtProperty *> m_name_to_property;
     QMap<QtProperty *, QString> m_property_to_name;
 
-    /// Temporary holder for graphviz graph (for relayout)
-    xrefGraphvizGraph * m_gv = nullptr;
-
-    /// JSON data decoded is stored here read-only, this is used to fill
-    /// m_editable_nodes without sizes, positions and other attributes
-    QMap<QString, xrefSourceNode *> m_source_nodes;
-
-    /// Editable items saved separately, modelled after m_source_nodes. User is
-    /// allowed to do changes to this structure. This is used to fill m_scene
-    QMap<QString, xrefEditableNode *> m_editable_nodes;
-
-    /// Selection on screen
-    QSet<xrefEditableNode *> m_selected_nodes;
-
     /// Program options and settings
     QSettings m_settings;
+
+    /// Stores all graph data which we are working on
+    xrefGraph m_xg;
+
+    /// Holds visible scene with all graph nodes, allows for very large object
+    /// count and uses heavy 2D optimizations. Modeled after m_editable_nodes
+    /// Scene cannot render itself, only contains stuff
+    QGraphicsScene * m_scene = nullptr;
+
+    /// Display component for scene. Renders scene contents
+    QGraphicsView * m_scene_view = nullptr;
 
 private slots:
     void on_actionDot_triggered();
@@ -75,14 +73,6 @@ private slots:
 
 private:
     Ui::MainWindow * ui = nullptr;
-
-    /// Holds visible scene with all graph nodes, allows for very large object
-    /// count and uses heavy 2D optimizations. Modeled after m_editable_nodes
-    /// Scene cannot render itself, only contains stuff
-    QGraphicsScene * m_scene = nullptr;
-
-    /// Display component for scene. Renders scene contents
-    QGraphicsView * m_scene_view = nullptr;
 
     QtVariantPropertyManager * m_variant_manager;
     QtTreePropertyBrowser * m_property_editor;

@@ -29,12 +29,14 @@ public:
 
     QPointF get_attach_point_for_edge();
 
+public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                        QWidget *widget);
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 public:
+    xrefSourceNode * m_src_node = nullptr;
     QString m_name;
     QList<xrefEditableEdge *> m_linked_edges;
 
