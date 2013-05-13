@@ -7,8 +7,6 @@
 #include <QPoint>
 #include <QGraphicsRectItem>
 
-//class Agnode_t;
-
 /// Describes a node information as loaded from JSON
 class xrefSourceNode
 {
@@ -17,7 +15,9 @@ public:
     QSet<QString> m_callees;
 };
 
+
 class xrefEditableEdge;
+
 
 /// Describes a visible node on screen.
 class xrefEditableNode: public QGraphicsRectItem
@@ -28,6 +28,7 @@ public:
     virtual ~xrefEditableNode() {}
 
     QPointF get_attach_point_for_edge();
+    void set_rect_update_edges(const QRectF &rect);
 
 public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,

@@ -98,3 +98,82 @@ void xrefGraph::source_to_editable_nodes()
         add_edges_to_scene(caller_node);
     }
 }
+
+// @private
+// Directly use agsafeset which always works, contrarily to agset
+int _agset(void * object, const QString & attr, const QString & value)
+{
+    return agsafeset(object, const_cast<char *>(qPrintable(attr)),
+                     const_cast<char *>(qPrintable(value)),
+                     const_cast<char *>(qPrintable(value)));
+}
+
+void xrefGraph::apply_layout(const char *gv_layout_method)
+{
+    QSet<xrefEditableNode *> enodes;
+    foreach(auto n, m_editable_nodes.values()) { enodes.insert(n); }
+    apply_layout(enodes, gv_layout_method);
+}
+
+void xrefGraph::apply_layout(const QSet<xrefEditableNode *> &nodes_affected, const char *gv_layout_method)
+{
+    //auto graph = new xrefGraphvizGraph();
+    GVC_t * gvc = gvContext();
+    Agraph_t * graph = agopen("G", AGDIGRAPH);
+
+    QMap<xrefEditableNode *, Agnode_t *> enode_to_agnode;
+    QMap<Agnode_t *, xrefEditableNode *> agnode_to_enode;
+
+    // copy editable nodes to graphviz nodes
+    foreach(xrefEditableNode * my_node, nodes_affected) {
+        auto gv_node = agnode(graph, const_cast<char *>(qPrintable(my_node->m_name)));
+
+        auto my_rect = my_node->rect();
+        auto my_center = my_rect.center();
+
+//        QString pos_str("%1,%2");
+//        _agset(gv_node, "pos", pos_str.arg(my_center.x()).arg(my_center.y()));
+        gv_node->u.coord.x = my_center.x();
+        gv_node->u.coord.y = my_center.y();
+        gv_node->u.bb.LL.x = my_rect.topLeft().x();
+        gv_node->u.bb.LL.y = my_rect.topLeft().y();
+        gv_node->u.bb.UR.x = my_rect.bottomRight().x();
+        gv_node->u.bb.UR.y = my_rect.bottomRight().y();
+
+        enode_to_agnode[my_node] = gv_node;
+        agnode_to_enode[gv_node] = my_node;
+    }
+
+    // copy editable directed edges (they can overlap in opposite directions)
+    foreach(xrefEditableNode * my_node, nodes_affected) {
+        auto gv_from = enode_to_agnode[my_node];
+        foreach(xrefEditableEdge * my_edge, my_node->m_linked_edges) {
+            auto gv_to = enode_to_agnode[my_edge->m_dst];
+            agedge(graph, gv_from, gv_to);
+        }
+    }
+
+    // relayout
+    gvLayout(gvc, graph, gv_layout_method);
+
+    // copy coordinates back
+    for (Agnode_t * agnode = agfstnode(graph); agnode != nullptr; agnode = agnxtnode(graph, agnode))
+    {
+//        QPointF pos((agnode->u.bb.LL.x + agnode->u.bb.UR.x) * 0.5,
+//                    (agnode->u.bb.LL.y + agnode->u.bb.UR.y) * 0.5);
+        QPointF pos(agnode->u.coord.x, agnode->u.coord.y);
+        auto my_node = agnode_to_enode[agnode];
+
+        auto rc = my_node->rect();
+        QRectF new_rc(pos.x() - rc.width() * 0.5,
+                      pos.y() - rc.height() * 0.5,
+                      rc.width(), rc.height());
+
+        // reposition center of rectangle on the point from graphviz
+        my_node->set_rect_update_edges(new_rc);
+    }
+
+    // done
+    agclose(graph);
+    gvFreeContext(gvc);
+}

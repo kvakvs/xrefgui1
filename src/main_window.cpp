@@ -26,8 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(m_scene_view);
 
     // load JSON data and populate view
-    m_xg.load_source_nodes("edges.json");
-    m_xg.source_to_editable_nodes();
+    m_xrefgraph.load_source_nodes("edges.json");
+    m_xrefgraph.source_to_editable_nodes();
 
     // property manager and property editor tab
     m_variant_manager = new QtVariantPropertyManager(this);
@@ -52,9 +52,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::selection_toggle(xrefEditableNode * node)
 {
-    m_xg.m_selected_nodes.clear();
+    m_xrefgraph.m_selected_nodes.clear();
     if (node) {
-        m_xg.m_selected_nodes.insert(node);
+        m_xrefgraph.m_selected_nodes.insert(node);
     }
 
     // property editor
@@ -88,7 +88,7 @@ void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
 {
     auto prop_name = m_property_to_name[p];
 
-    foreach(xrefEditableNode * sel, m_xg.m_selected_nodes) {
+    foreach(xrefEditableNode * sel, m_xrefgraph.m_selected_nodes) {
         if (prop_name == "draw_in_edges") {
             sel->m_draw_in_edges = v.toBool();
         }
@@ -101,11 +101,13 @@ void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
 
 
 void MainWindow::on_actionDot_triggered() {
-//    m_xg.redo_layout("dot");
+    m_xrefgraph.apply_layout("dot");
+    m_scene_view->update();
 }
 
 void MainWindow::on_actionNeato_triggered() {
-//    m_xg.redo_layout("neato");
+    m_xrefgraph.apply_layout("neato");
+    m_scene_view->update();
 }
 
 void MainWindow::on_actionFdp_triggered() {
@@ -117,7 +119,8 @@ void MainWindow::on_actionSfdp_triggered() {
 }
 
 void MainWindow::on_actionTwopi_triggered() {
-//    m_xg.redo_layout("twopi");
+    m_xrefgraph.apply_layout("twopi");
+    m_scene_view->update();
 }
 
 void MainWindow::on_actionCirco_triggered() {

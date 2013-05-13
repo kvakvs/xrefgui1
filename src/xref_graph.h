@@ -19,10 +19,14 @@ public:
     void load_source_nodes(const QString &fn);
     void source_to_editable_nodes();
 
-public:
-    /// Temporary holder for graphviz graph (for relayout)
-    xrefGraphvizGraph * m_gv = nullptr;
+    /// Forms a graphviz memory structure and calls graphviz layout function
+    void apply_layout(const char * gv_layout_method);
 
+    /// Forms a graphviz memory structure and calls graphviz layout function for given subset of nodes
+    void apply_layout(const QSet<xrefEditableNode *> & nodes_affected,
+                      const char * gv_layout_method);
+
+public:
     /// JSON data decoded is stored here read-only, this is used to fill
     /// m_editable_nodes without sizes, positions and other attributes
     QMap<QString, xrefSourceNode *> m_source_nodes;

@@ -65,6 +65,14 @@ void xrefEditableNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+void xrefEditableNode::set_rect_update_edges(const QRectF &rect)
+{
+    setRect(rect);
+    foreach(xrefEditableEdge * e, m_linked_edges) {
+        e->update_edge_coords();
+    }
+}
+
 QVariant xrefEditableNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if (change == QGraphicsItem::ItemSelectedChange)

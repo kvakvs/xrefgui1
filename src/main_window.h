@@ -49,7 +49,7 @@ public:
     QSettings m_settings;
 
     /// Stores all graph data which we are working on
-    xrefGraph m_xg;
+    xrefGraph m_xrefgraph;
 
     /// Holds visible scene with all graph nodes, allows for very large object
     /// count and uses heavy 2D optimizations. Modeled after m_editable_nodes
