@@ -126,6 +126,7 @@ void xrefGraph::apply_layout(const QSet<xrefEditableNode *> &nodes_affected, con
 
     // copy editable nodes to graphviz nodes
     foreach(xrefEditableNode * my_node, nodes_affected) {
+        // note: node name here must be unique
         auto gv_node = agnode(graph, const_cast<char *>(qPrintable(my_node->m_name)));
 
         auto my_rect = my_node->rect();
