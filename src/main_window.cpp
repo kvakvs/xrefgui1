@@ -9,6 +9,7 @@
 #include "graphviz_graph.h"
 #include "xref_node.h"
 #include "xref_edge.h"
+#include "select_nodes_dialog.h"
 
 MainWindow * MainWindow::m_singleton = nullptr;
 
@@ -28,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // load JSON data and populate view
     m_xrefgraph.load_source_nodes("edges.json");
     m_xrefgraph.source_to_editable_nodes();
+    auto dialog = new SelectNodesDialog(this, m_xrefgraph.m_editable_nodes.values());
+    dialog->exec();
 
     // property manager and property editor tab
     m_variant_manager = new QtVariantPropertyManager(this);

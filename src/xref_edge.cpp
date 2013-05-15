@@ -9,6 +9,8 @@ xrefEditableEdge::xrefEditableEdge(xrefEditableNode * src, xrefEditableNode * ds
 
 void xrefEditableEdge::update_edge_coords()
 {
+    if (! m_src) return;
+    if (! m_dst) return;
     auto p1 = m_src->get_attach_point_for_edge();
     auto p2 = m_dst->get_attach_point_for_edge();
     QLineF new_line(p1, p2);

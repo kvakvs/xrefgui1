@@ -29,6 +29,8 @@ void xrefGraph::add_edges_to_scene(xrefEditableNode * caller_node)
 
     for(auto callee: caller_node->m_src_node->m_callees) {
         xrefEditableNode * callee_node = m_editable_nodes[callee];
+        // TODO: produce a warning here?
+        if (! callee_node) continue;
 
         auto edge = new xrefEditableEdge(caller_node, callee_node);
         edge->setZValue(10);
@@ -95,6 +97,8 @@ void xrefGraph::source_to_editable_nodes()
 
     foreach(xrefSourceNode * caller_src_node, m_source_nodes) {
         xrefEditableNode * caller_node = m_editable_nodes[caller_src_node->m_name];
+        // TODO: produce a warning here?
+        if (! caller_node) continue;
         add_edges_to_scene(caller_node);
     }
 }
@@ -111,7 +115,9 @@ int _agset(void * object, const QString & attr, const QString & value)
 void xrefGraph::apply_layout(const char *gv_layout_method)
 {
     QSet<xrefEditableNode *> enodes;
-    foreach(auto n, m_editable_nodes.values()) { enodes.insert(n); }
+    foreach(auto n, m_editable_nodes.values()) {
+        if (n) enodes.insert(n);
+    }
     apply_layout(enodes, gv_layout_method);
 }
 
