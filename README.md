@@ -32,3 +32,12 @@ Key concepts:
 1.  Recode data to JSON using ???? (hello JD!)
 1.  Put input.json in the program starting directory
 1.  Run the GUI.
+
+# input.json format
+
+{ "connections": {"appname1": ["modname1", "modname2", ...]}
+, "applications": {"appname1": ["app1mod1", "app1mod2", ...]}
+}
+
+Two keys are defined. "connections" defines per module callee list.
+"applications" defines how modules relate to applications.

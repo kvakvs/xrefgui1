@@ -27,6 +27,8 @@ public:
                       const char * gv_layout_method);
 
 public:
+    QMap<QString, QList<QString>> m_app_modules;
+
     /// JSON data decoded is stored here read-only, this is used to fill
     /// m_editable_nodes without sizes, positions and other attributes
     QMap<QString, xrefSourceNode *> m_source_nodes;

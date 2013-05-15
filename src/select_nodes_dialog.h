@@ -15,7 +15,8 @@ class SelectNodesDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit SelectNodesDialog(QWidget *parent, QList<xrefEditableNode *> nodes);
+    explicit SelectNodesDialog(QWidget *parent, QList<QString> appnames,
+                               QList<xrefEditableNode *> nodes);
     ~SelectNodesDialog();
     
 private:

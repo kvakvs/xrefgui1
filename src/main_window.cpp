@@ -27,9 +27,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(m_scene_view);
 
     // load JSON data and populate view
-    m_xrefgraph.load_source_nodes("edges.json");
+    m_xrefgraph.load_source_nodes("input.json");
     m_xrefgraph.source_to_editable_nodes();
-    auto dialog = new SelectNodesDialog(this, m_xrefgraph.m_editable_nodes.values());
+    auto dialog = new SelectNodesDialog(this,
+                                        m_xrefgraph.m_app_modules.keys(),
+                                        m_xrefgraph.m_editable_nodes.values());
     dialog->exec();
 
     // property manager and property editor tab
@@ -70,11 +72,11 @@ void MainWindow::selection_toggle(xrefEditableNode * node)
         QtVariantProperty * property;
 
         property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw IN edges"));
-        property->setValue(QVariant(node->m_draw_in_edges));
+        property->setValue(QVariant(node->m_editor_flags.edges_in));
         add_property(property, QLatin1String("draw_in_edges"));
 
         property = m_variant_manager->addProperty(QVariant::Bool, tr("Draw OUT edges"));
-        property->setValue(QVariant(node->m_draw_out_edges));
+        property->setValue(QVariant(node->m_editor_flags.edges_out));
         add_property(property, QLatin1String("draw_out_edges"));
     }
 }
@@ -93,10 +95,10 @@ void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
 
     foreach(xrefEditableNode * sel, m_xrefgraph.m_selected_nodes) {
         if (prop_name == "draw_in_edges") {
-            sel->m_draw_in_edges = v.toBool();
+            sel->m_editor_flags.edges_in = v.toBool();
         }
         if (prop_name == "draw_out_edges") {
-            sel->m_draw_out_edges = v.toBool();
+            sel->m_editor_flags.edges_out = v.toBool();
         }
     }
     m_scene_view->update();

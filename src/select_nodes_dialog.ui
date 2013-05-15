@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>SelectNodesDialog</class>
  <widget class="QDialog" name="SelectNodesDialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,13 +14,59 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Select visible nodes</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="listWidget"/>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QListWidget" name="appsLW">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="modulesLW">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>2</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="btnClearTests">
+           <property name="text">
+            <string>Clear tests</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnClearAll">
+           <property name="text">
+            <string>Clear all</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSetAll">
+           <property name="text">
+            <string>Set all</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
@@ -42,8 +91,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>450</x>
-     <y>254</y>
+     <x>541</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -58,8 +107,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>476</x>
-     <y>260</y>
+     <x>541</x>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

@@ -49,6 +49,9 @@ void xrefGraph::load_source_nodes(const QString &fn)
         auto jdoc = QJsonDocument::fromJson(bytes);
         auto jroot = jdoc.object();
 
+        //-------------------------------------------------
+        // Load module caller/callee dependencies list
+        //-------------------------------------------------
         // input -> {connections: {mod1: ['mod2', 'mod3']}}
         auto connections = jroot.value("connections").toObject();
         for (auto n1iter = connections.begin(); n1iter != connections.end(); ++n1iter)
@@ -66,6 +69,30 @@ void xrefGraph::load_source_nodes(const QString &fn)
 
             m_source_nodes[node1_name] = src_node;
         } // for json keys
+
+        //-------------------------------------------------
+        // Load application list and modules belonging to apps
+        //-------------------------------------------------
+        // input -> {applications: {app1: ['mod1', 'mod2']}}
+        auto applications = jroot.value("applications").toObject();
+        for (auto aiter = applications.begin(); aiter != applications.end(); ++aiter)
+        {
+            auto app_name = aiter.key();
+            auto modules = aiter.value().toArray();
+            for (auto m_iter = modules.begin(); m_iter != modules.end(); ++m_iter)
+            {
+                auto mod_name = (* m_iter).toString();
+                if (! m_app_modules.contains(app_name)) {
+                    m_app_modules[app_name] = QList<QString>();
+                }
+                m_app_modules[app_name].append(mod_name);
+
+                // also add app name to module node
+                auto node = m_source_nodes[mod_name];
+                if (! node) continue; // TODO: a warning?
+                node->m_app_name = app_name;
+            } // for module list
+        }
     } // if file
 }
 
@@ -80,8 +107,10 @@ void xrefGraph::source_to_editable_nodes()
     }
 
     foreach(xrefSourceNode *src_node, m_source_nodes) {
+        if (! src_node) continue; // TODO: warning/error?
         // Make an editable node (which is also a scene item)
         auto editable = new xrefEditableNode(src_node->m_name);
+        editable->m_app_name = src_node->m_app_name;
         editable->m_src_node = src_node;
         editable->setRect(rand() % 1000, rand() % 500, 0, 0);
         editable->setBrush(QBrush(QColor(255, 255, 224)));
@@ -96,6 +125,7 @@ void xrefGraph::source_to_editable_nodes()
     }
 
     foreach(xrefSourceNode * caller_src_node, m_source_nodes) {
+        if (! caller_src_node) continue; // TODO: warning/error?
         xrefEditableNode * caller_node = m_editable_nodes[caller_src_node->m_name];
         // TODO: produce a warning here?
         if (! caller_node) continue;
