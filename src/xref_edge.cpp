@@ -1,13 +1,13 @@
 #include "xref_edge.h"
 #include "xref_node.h"
 
-xrefEditableEdge::xrefEditableEdge(xrefEditableNode * src, xrefEditableNode * dst)
+xrefSceneEdge::xrefSceneEdge(xrefSceneNode *src, xrefSceneNode *dst)
     : QGraphicsLineItem(), m_src(src), m_dst(dst)
 {
-    update_edge_coords();
+    update_scene_edge_coords();
 }
 
-void xrefEditableEdge::update_edge_coords()
+void xrefSceneEdge::update_scene_edge_coords()
 {
     if (! m_src) return;
     if (! m_dst) return;

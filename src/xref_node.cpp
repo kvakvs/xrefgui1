@@ -9,21 +9,22 @@
 #include "xref_node.h"
 #include "xref_edge.h"
 
-//xrefEditableNode::xrefEditableNode(): m_name()
-//{
-//}
-
 xrefEditableNode::xrefEditableNode(const QString &name)
     : m_name(name)
 {
 }
 
-QPointF xrefEditableNode::get_attach_point_for_edge()
+xrefSceneNode::xrefSceneNode(xrefEditableNode * node)
+    : QGraphicsRectItem(), m_node(node)
+{
+}
+
+QPointF xrefSceneNode::get_attach_point_for_edge()
 {
     return sceneBoundingRect().center();
 }
 
-void xrefEditableNode::paint(QPainter *painter,
+void xrefSceneNode::paint(QPainter *painter,
                              const QStyleOptionGraphicsItem *option,
                              QWidget *widget)
 {
@@ -33,7 +34,7 @@ void xrefEditableNode::paint(QPainter *painter,
 
     // update rect with text size
     if (bb.width() == 0) {
-        bb.setWidth(font_metrics.width(m_name));
+        bb.setWidth(font_metrics.width(m_node->m_name));
         bb.setHeight(font_height);
         setRect(bb);
     }
@@ -53,41 +54,40 @@ void xrefEditableNode::paint(QPainter *painter,
     auto text_start = bb.topLeft(); // where to draw name of the box
     painter->drawText(text_start.x(),
                       text_start.y() + font_height - font_metrics.descent(),
-                      m_name);
+                      m_node->m_name);
 }
 
-void xrefEditableNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void xrefSceneNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsRectItem::mouseMoveEvent(event);
 
-    for(xrefEditableEdge * edge: m_linked_edges) {
-        edge->update_edge_coords();
+    for(xrefSceneEdge * edge: m_linked_edges) {
+        edge->update_scene_edge_coords();
     }
 }
 
-void xrefEditableNode::set_rect_update_edges(const QRectF &rect)
+void xrefSceneNode::set_rect_update_edges(const QRectF &rect)
 {
     setRect(rect);
-    foreach(xrefEditableEdge * e, m_linked_edges) {
-        e->update_edge_coords();
+    foreach(xrefSceneEdge * e, m_linked_edges) {
+        e->update_scene_edge_coords();
     }
 }
 
-QVariant xrefEditableNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+QVariant xrefSceneNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if (change == QGraphicsItem::ItemSelectedChange)
     {
         // do we want this dependency here?
-        auto main = MainWindow::m_singleton;
-
-        if (value == true) {
-            // do stuff if selected
-            main->selection_toggle(this);
-        }
-        else {
-            // do stuff if not selected
-            main->selection_toggle(nullptr);
-        }
+//        auto main = MainWindow::m_singleton;
+//        if (value == true) {
+//            // do stuff if selected
+//            main->selection_toggle(this);
+//        }
+//        else {
+//            // do stuff if not selected
+//            main->selection_toggle(nullptr);
+//        }
     }
 
     return QGraphicsItem::itemChange(change, value);
