@@ -71,6 +71,8 @@ private slots:
     void on_actionSpline_triggered(bool checked);
     void on_property_value_changed(QtProperty *p, const QVariant &v);
 
+    void on_actionReset_and_populate_triggered();
+
 private:
     Ui::MainWindow * ui = nullptr;
 

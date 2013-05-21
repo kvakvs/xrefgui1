@@ -60,7 +60,9 @@ public:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 public:
-    xrefEditableNode * m_node;
+    QString m_app_name;
+    QString m_name;
+    xrefEditableNode * m_node = nullptr;
     QList<xrefSceneEdge *> m_linked_edges;
 };
 

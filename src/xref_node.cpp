@@ -15,7 +15,8 @@ xrefEditableNode::xrefEditableNode(const QString &name)
 }
 
 xrefSceneNode::xrefSceneNode(xrefEditableNode * node)
-    : QGraphicsRectItem(), m_node(node)
+    : QGraphicsRectItem(), m_node(node),
+      m_app_name(node->m_app_name), m_name(node->m_name)
 {
 }
 

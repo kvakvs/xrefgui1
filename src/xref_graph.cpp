@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QDebug>
 
 #include "xref_node.h"
 #include "xref_edge.h"
@@ -27,10 +28,9 @@ void xrefGraph::add_edges_to_scene(xrefSceneNode * caller_node)
 {
     auto main = MainWindow::m_singleton;
 
-    for(auto callee: caller_node->m_node->m_src_node->m_callees) {
-        xrefSceneNode * callee_node = m_scene_nodes[callee];
-        // TODO: produce a warning here?
-        if (! callee_node) continue;
+    foreach(auto callee, caller_node->m_node->m_src_node->m_callees) {
+        if (! m_scene_nodes.contains(callee)) continue;
+        xrefSceneNode * callee_node = m_scene_nodes.value(callee);
 
         auto edge = new xrefSceneEdge(caller_node, callee_node);
         edge->setZValue(10);
@@ -67,7 +67,7 @@ void xrefGraph::load_source_nodes(const QString &fn)
                 src_node->m_callees.insert(callee_name);
             } // for callee list
 
-            m_source_nodes[node1_name] = src_node;
+            m_source_nodes.insert(node1_name, src_node);
         } // for json keys
 
         //-------------------------------------------------
@@ -83,14 +83,15 @@ void xrefGraph::load_source_nodes(const QString &fn)
             {
                 auto mod_name = (* m_iter).toString();
                 if (! m_app_modules.contains(app_name)) {
-                    m_app_modules[app_name] = QList<QString>();
+                    m_app_modules.insert(app_name, QList<QString>());
                 }
                 m_app_modules[app_name].append(mod_name);
 
                 // also add app name to module node
-                auto node = m_source_nodes[mod_name];
-                if (! node) continue; // TODO: a warning?
-                node->m_app_name = app_name;
+                if (m_source_nodes.contains(mod_name)) {
+                    auto node = m_source_nodes.value(mod_name);
+                    node->m_app_name = app_name;
+                }
             } // for module list
         }
     } // if file
@@ -98,8 +99,6 @@ void xrefGraph::load_source_nodes(const QString &fn)
 
 void xrefGraph::source_to_editable_nodes()
 {
-    auto main = MainWindow::m_singleton;
-
     // CLEAR USER EDITS! do not call this more than once after first import
     //for(auto n = m_editable_nodes.begin(); n != m_editable_nodes.end(); ++n) {
     foreach(xrefEditableNode * n, m_editable_nodes) {
@@ -107,28 +106,42 @@ void xrefGraph::source_to_editable_nodes()
     }
 
     foreach(xrefSourceNode *src_node, m_source_nodes) {
-        if (! src_node) continue; // TODO: warning/error?
+        Q_ASSERT(src_node != nullptr);
         // Make an editable node (which is also a scene item)
         auto editable = new xrefEditableNode(src_node->m_name);
         editable->m_app_name = src_node->m_app_name;
         editable->m_src_node = src_node;
-        editable->setRect(rand() % 1000, rand() % 500, 0, 0);
-        editable->setBrush(QBrush(QColor(255, 255, 224)));
-        editable->setFlag(QGraphicsItem::ItemIsMovable, true);
-        editable->setFlag(QGraphicsItem::ItemIsSelectable, true);
-        editable->setFlag(QGraphicsItem::ItemIsFocusable, true);
-        m_editable_nodes[src_node->m_name] = editable;
+        m_editable_nodes.insert(src_node->m_name, editable);
+    }
+}
+
+void xrefGraph::editable_to_scene_nodes()
+{
+    auto main = MainWindow::m_singleton;
+
+    main->m_scene->clear();
+
+    foreach(xrefEditableNode *ed_node, m_editable_nodes) {
+        Q_ASSERT(ed_node != nullptr);
+        // Make an editable node (which is also a scene item)
+        auto scene_node = new xrefSceneNode(ed_node);
+        scene_node->setRect(rand() % 1000, rand() % 500, 0, 0);
+        scene_node->setBrush(QBrush(QColor(255, 255, 224)));
+        scene_node->setFlag(QGraphicsItem::ItemIsMovable, true);
+        scene_node->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        scene_node->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        m_scene_nodes.insert(ed_node->m_name, scene_node);
 
         // add node as scene item to scene
-        editable->setZValue(20);
-        main->m_scene->addItem(editable);
+        scene_node->setZValue(20);
+        main->m_scene->addItem(scene_node);
     }
 
     foreach(xrefSourceNode * caller_src_node, m_source_nodes) {
-        if (! caller_src_node) continue; // TODO: warning/error?
-        xrefEditableNode * caller_node = m_editable_nodes[caller_src_node->m_name];
-        // TODO: produce a warning here?
-        if (! caller_node) continue;
+        if (! m_scene_nodes.contains(caller_src_node->m_name)) continue;
+        xrefSceneNode * caller_node = m_scene_nodes.value(caller_src_node->m_name);
+
+        Q_ASSERT(caller_node != nullptr);
         add_edges_to_scene(caller_node);
     }
 }
@@ -144,26 +157,29 @@ int _agset(void * object, const QString & attr, const QString & value)
 
 void xrefGraph::apply_layout(const char *gv_layout_method)
 {
-    QSet<xrefEditableNode *> enodes;
-    foreach(auto n, m_editable_nodes.values()) {
-        if (n) enodes.insert(n);
+    QSet<xrefSceneNode *> s_nodes;
+    foreach(auto n, m_scene_nodes.values()) {
+        if (n) s_nodes.insert(n);
     }
-    apply_layout(enodes, gv_layout_method);
+    apply_layout(s_nodes, gv_layout_method);
 }
 
-void xrefGraph::apply_layout(const QSet<xrefEditableNode *> &nodes_affected, const char *gv_layout_method)
+void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const char *gv_layout_method)
 {
     //auto graph = new xrefGraphvizGraph();
     GVC_t * gvc = gvContext();
-    Agraph_t * graph = agopen("G", AGDIGRAPH);
+    Agraph_t * graph = agopen(const_cast<char *>("G"), AGDIGRAPH);
 
-    QMap<xrefEditableNode *, Agnode_t *> enode_to_agnode;
-    QMap<Agnode_t *, xrefEditableNode *> agnode_to_enode;
+    QMap<xrefSceneNode *, Agnode_t *> snode_to_agnode;
+    QMap<Agnode_t *, xrefSceneNode *> agnode_to_snode;
 
     // copy editable nodes to graphviz nodes
-    foreach(xrefEditableNode * my_node, nodes_affected) {
+    foreach(xrefSceneNode * my_node, nodes_affected) {
         // note: node name here must be unique
-        auto gv_node = agnode(graph, const_cast<char *>(qPrintable(my_node->m_name)));
+        auto gv_node = agnode(
+                    graph,
+                    const_cast<char *>(qPrintable(my_node->m_name))
+                    );
 
         auto my_rect = my_node->rect();
         auto my_center = my_rect.center();
@@ -177,15 +193,16 @@ void xrefGraph::apply_layout(const QSet<xrefEditableNode *> &nodes_affected, con
         gv_node->u.bb.UR.x = my_rect.bottomRight().x();
         gv_node->u.bb.UR.y = my_rect.bottomRight().y();
 
-        enode_to_agnode[my_node] = gv_node;
-        agnode_to_enode[gv_node] = my_node;
+        snode_to_agnode.insert(my_node, gv_node);
+        agnode_to_snode.insert(gv_node, my_node);
     }
 
     // copy editable directed edges (they can overlap in opposite directions)
-    foreach(xrefEditableNode * my_node, nodes_affected) {
-        auto gv_from = enode_to_agnode[my_node];
+    foreach(xrefSceneNode * my_node, nodes_affected) {
+        Agnode_t * gv_from = snode_to_agnode.value(my_node);
+
         foreach(xrefSceneEdge * my_edge, my_node->m_linked_edges) {
-            auto gv_to = enode_to_agnode[my_edge->m_dst];
+            Agnode_t * gv_to = snode_to_agnode.value(my_edge->m_dst);
             agedge(graph, gv_from, gv_to);
         }
     }
@@ -196,10 +213,8 @@ void xrefGraph::apply_layout(const QSet<xrefEditableNode *> &nodes_affected, con
     // copy coordinates back
     for (Agnode_t * agnode = agfstnode(graph); agnode != nullptr; agnode = agnxtnode(graph, agnode))
     {
-//        QPointF pos((agnode->u.bb.LL.x + agnode->u.bb.UR.x) * 0.5,
-//                    (agnode->u.bb.LL.y + agnode->u.bb.UR.y) * 0.5);
         QPointF pos(agnode->u.coord.x, agnode->u.coord.y);
-        auto my_node = agnode_to_enode[agnode];
+        xrefSceneNode * my_node = agnode_to_snode.value(agnode);
 
         auto rc = my_node->rect();
         QRectF new_rc(pos.x() - rc.width() * 0.5,

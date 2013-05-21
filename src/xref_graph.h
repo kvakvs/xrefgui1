@@ -17,13 +17,18 @@ public:
     void add_edges_to_scene(xrefSceneNode *caller_node);
 
     void load_source_nodes(const QString &fn);
+
+    /// Copies names and edges from source nodes to editable nodes
     void source_to_editable_nodes();
+
+    /// Copies names and edges from editable nodes to scene
+    void editable_to_scene_nodes();
 
     /// Forms a graphviz memory structure and calls graphviz layout function
     void apply_layout(const char * gv_layout_method);
 
     /// Forms a graphviz memory structure and calls graphviz layout function for given subset of nodes
-    void apply_layout(const QSet<xrefEditableNode *> & nodes_affected,
+    void apply_layout(const QSet<xrefSceneNode *> & nodes_affected,
                       const char * gv_layout_method);
 
 public:

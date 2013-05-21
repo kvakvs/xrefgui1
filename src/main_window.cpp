@@ -29,10 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // load JSON data and populate view
     m_xrefgraph.load_source_nodes("input.json");
     m_xrefgraph.source_to_editable_nodes();
-    auto dialog = new SelectNodesDialog(this,
-                                        m_xrefgraph.m_app_modules.keys(),
-                                        m_xrefgraph.m_editable_nodes.values());
-    dialog->exec();
 
     // property manager and property editor tab
     m_variant_manager = new QtVariantPropertyManager(this);
@@ -144,4 +140,15 @@ void MainWindow::on_actionSpline_triggered(bool checked)
 {
 //    m_settings.setValue("layout/spline", checked);
 //    m_xg.redo_layout(nullptr);
+}
+
+void MainWindow::on_actionReset_and_populate_triggered()
+{
+    auto dialog = new SelectNodesDialog(
+                this, m_xrefgraph.m_app_modules.keys(),
+                m_xrefgraph.m_editable_nodes.values()
+                );
+    if (dialog->exec() == QDialog::Accepted) {
+        m_xrefgraph.editable_to_scene_nodes();
+    }
 }
