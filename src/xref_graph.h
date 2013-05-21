@@ -4,7 +4,10 @@
 #include <QString>
 #include <QMap>
 #include <QSet>
+#include <QTransform>
+#include <QBrush>
 
+class xrefSceneNode;
 class xrefSceneEdge;
 class xrefEditableNode;
 class xrefSourceNode;
@@ -22,7 +25,7 @@ public:
     void source_to_editable_nodes();
 
     /// Copies names and edges from editable nodes to scene
-    void editable_to_scene_nodes();
+    void editable_to_scene_nodes(const QSet<QString> & node_names);
 
     /// Forms a graphviz memory structure and calls graphviz layout function
     void apply_layout(const char * gv_layout_method);
@@ -30,6 +33,13 @@ public:
     /// Forms a graphviz memory structure and calls graphviz layout function for given subset of nodes
     void apply_layout(const QSet<xrefSceneNode *> & nodes_affected,
                       const char * gv_layout_method);
+
+    void clear_editable();
+    void transform(const QTransform & tr);
+
+    /// Selects item background color to distinguish per application
+    static QBrush choose_brush(xrefEditableNode * ed_node,
+                               xrefSceneNode * scene_node);
 
 public:
     QMap<QString, QList<QString>> m_app_modules;

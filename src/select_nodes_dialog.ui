@@ -75,7 +75,7 @@
        <item>
         <widget class="QPushButton" name="buttonSave">
          <property name="text">
-          <string>Apply</string>
+          <string>Populate Graph</string>
          </property>
         </widget>
        </item>

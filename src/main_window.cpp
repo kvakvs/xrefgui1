@@ -1,3 +1,5 @@
+#include <QTransform>
+
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
 //#include "qtcanvas.h"
@@ -28,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // load JSON data and populate view
     m_xrefgraph.load_source_nodes("input.json");
-    m_xrefgraph.source_to_editable_nodes();
 
     // property manager and property editor tab
     m_variant_manager = new QtVariantPropertyManager(this);
@@ -77,6 +78,23 @@ void MainWindow::selection_toggle(xrefEditableNode * node)
     }
 }
 
+void MainWindow::save_as_image(const QString &filename)
+{
+    // Selections would also render to the file
+    m_scene->clearSelection();
+    // Re-shrink the scene to it's bounding contents
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+
+    // Create the image with the exact size of the shrunk scene
+    QImage image(m_scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
+    // Start all pixels transparent
+    image.fill(Qt::white);
+
+    QPainter painter(&image);
+    m_scene->render(&painter);
+    image.save(filename);
+}
+
 
 void MainWindow::add_property(QtVariantProperty *property, const QString &id)
 {
@@ -103,33 +121,44 @@ void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
 
 void MainWindow::on_actionDot_triggered() {
     m_xrefgraph.apply_layout("dot");
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
     m_scene_view->update();
 }
 
 void MainWindow::on_actionNeato_triggered() {
     m_xrefgraph.apply_layout("neato");
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
     m_scene_view->update();
 }
 
 void MainWindow::on_actionFdp_triggered() {
-//    m_xg.redo_layout("fdp");
+    m_xrefgraph.apply_layout("fdp");
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene_view->update();
 }
 
 void MainWindow::on_actionSfdp_triggered() {
-//    m_xg.redo_layout("sfdp");
+    m_xrefgraph.apply_layout("sfdp");
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene_view->update();
 }
 
 void MainWindow::on_actionTwopi_triggered() {
     m_xrefgraph.apply_layout("twopi");
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
     m_scene_view->update();
 }
 
 void MainWindow::on_actionCirco_triggered() {
-//    m_xg.redo_layout("circo");
+    m_xrefgraph.apply_layout("circo");
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene_view->update();
 }
 
 void MainWindow::on_actionPatchwork_triggered() {
-//    m_xg.redo_layout("patchwork");
+    m_xrefgraph.apply_layout("patchwork");
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene_view->update();
 }
 
 void MainWindow::on_actionOsage_triggered() {
@@ -146,9 +175,49 @@ void MainWindow::on_actionReset_and_populate_triggered()
 {
     auto dialog = new SelectNodesDialog(
                 this, m_xrefgraph.m_app_modules.keys(),
-                m_xrefgraph.m_editable_nodes.values()
+                m_xrefgraph.m_source_nodes.values()
                 );
     if (dialog->exec() == QDialog::Accepted) {
-        m_xrefgraph.editable_to_scene_nodes();
+        m_scene->clear();
+        m_xrefgraph.clear_editable();
+        m_xrefgraph.source_to_editable_nodes();
+        m_xrefgraph.editable_to_scene_nodes(dialog->m_selected_modules);
     }
+}
+
+void MainWindow::on_actionClear_everything_triggered()
+{
+    m_scene->clear();
+    m_xrefgraph.clear_editable();
+}
+
+void MainWindow::on_actionSave_to_graph_png_triggered()
+{
+    save_as_image("graph.png");
+}
+
+void MainWindow::on_actionScalePlus20_triggered()
+{
+    auto bb = m_scene->itemsBoundingRect();
+    auto center = bb.center();
+    QTransform tr;
+    tr.translate(-center.x(), -center.y());
+    tr.scale(1.2, 1.2);
+    tr.translate(center.x(), center.y());
+    m_xrefgraph.transform(tr);
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene->update();
+}
+
+void MainWindow::on_actionScaleMinus20_triggered()
+{
+    auto bb = m_scene->itemsBoundingRect();
+    auto center = bb.center();
+    QTransform tr;
+    tr.translate(-center.x(), -center.y());
+    tr.scale(1.0/1.2, 1.0/1.2);
+    tr.translate(center.x(), center.y());
+    m_xrefgraph.transform(tr);
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene->update();
 }

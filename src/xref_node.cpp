@@ -41,12 +41,12 @@ void xrefSceneNode::paint(QPainter *painter,
     }
 
     // box
-    if (focusItem() == this) {
-        auto color_selected = QApplication::palette().color(QPalette::Highlight);
-        painter->fillRect(bb, QBrush(color_selected));
-    } else {
+//    if (focusItem() == this) {
+//        auto color_selected = QApplication::palette().color(QPalette::Highlight);
+//        painter->fillRect(bb, QBrush(color_selected));
+//    } else {
         painter->fillRect(bb, brush());
-    }
+//    }
     painter->setPen(pen());
     painter->drawRect(bb);
 

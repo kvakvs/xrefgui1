@@ -100,10 +100,7 @@ void xrefGraph::load_source_nodes(const QString &fn)
 void xrefGraph::source_to_editable_nodes()
 {
     // CLEAR USER EDITS! do not call this more than once after first import
-    //for(auto n = m_editable_nodes.begin(); n != m_editable_nodes.end(); ++n) {
-    foreach(xrefEditableNode * n, m_editable_nodes) {
-        delete n;
-    }
+    clear_editable();
 
     foreach(xrefSourceNode *src_node, m_source_nodes) {
         Q_ASSERT(src_node != nullptr);
@@ -115,7 +112,7 @@ void xrefGraph::source_to_editable_nodes()
     }
 }
 
-void xrefGraph::editable_to_scene_nodes()
+void xrefGraph::editable_to_scene_nodes(const QSet<QString> & node_names)
 {
     auto main = MainWindow::m_singleton;
 
@@ -123,6 +120,8 @@ void xrefGraph::editable_to_scene_nodes()
 
     foreach(xrefEditableNode *ed_node, m_editable_nodes) {
         Q_ASSERT(ed_node != nullptr);
+        if (! node_names.contains(ed_node->m_name)) { continue; }
+
         // Make an editable node (which is also a scene item)
         auto scene_node = new xrefSceneNode(ed_node);
         scene_node->setRect(rand() % 1000, rand() % 500, 0, 0);
@@ -130,6 +129,7 @@ void xrefGraph::editable_to_scene_nodes()
         scene_node->setFlag(QGraphicsItem::ItemIsMovable, true);
         scene_node->setFlag(QGraphicsItem::ItemIsSelectable, true);
         scene_node->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        scene_node->setBrush(choose_brush(ed_node, scene_node));
         m_scene_nodes.insert(ed_node->m_name, scene_node);
 
         // add node as scene item to scene
@@ -138,12 +138,15 @@ void xrefGraph::editable_to_scene_nodes()
     }
 
     foreach(xrefSourceNode * caller_src_node, m_source_nodes) {
-        if (! m_scene_nodes.contains(caller_src_node->m_name)) continue;
-        xrefSceneNode * caller_node = m_scene_nodes.value(caller_src_node->m_name);
+        auto caller_src_name = caller_src_node->m_name;
+        if (! node_names.contains(caller_src_name)) { continue; }
+        if (! m_scene_nodes.contains(caller_src_name)) { continue; }
+        xrefSceneNode * caller_node = m_scene_nodes.value(caller_src_name);
 
         Q_ASSERT(caller_node != nullptr);
         add_edges_to_scene(caller_node);
     }
+    main->m_scene->setSceneRect(main->m_scene->itemsBoundingRect());
 }
 
 // @private
@@ -228,4 +231,40 @@ void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const 
     // done
     agclose(graph);
     gvFreeContext(gvc);
+}
+
+void xrefGraph::clear_editable()
+{
+    foreach(xrefEditableNode * n, m_editable_nodes) {
+        delete n;
+    }
+    m_editable_nodes.clear();
+    //m_app_modules.clear();
+    m_scene_nodes.clear();
+    m_selected_nodes.clear();
+}
+
+void xrefGraph::transform(const QTransform &tr)
+{
+    foreach(xrefEditableNode *ed_node, m_editable_nodes) {
+        Q_ASSERT(ed_node != nullptr);
+        if (m_scene_nodes.contains(ed_node->m_name)) {
+            xrefSceneNode * scene_node = m_scene_nodes.value(ed_node->m_name);
+            auto rc = scene_node->rect();
+
+            auto diff = tr.map(rc.center()) - rc.center();
+
+            scene_node->set_rect_update_edges(rc.translated(diff));
+        }
+    }
+}
+
+QBrush xrefGraph::choose_brush(xrefEditableNode *ed_node, xrefSceneNode *scene_node)
+{
+    quint16 sum = qChecksum((const char *)ed_node->m_app_name.data(),
+                            ed_node->m_app_name.length());
+    QColor c((sum & 0x1F) * 127 / 0x1F + 128,
+             ((sum >> 5) & 0x3F) * 127 / 0x3F + 128,
+             ((sum >> 11) & 0x1F) * 127 / 0x1F + 128);
+    return QBrush(c);
 }
