@@ -23,16 +23,16 @@ xrefGraph::~xrefGraph()
     m_editable_nodes.clear();
 }
 
-void xrefGraph::add_edges_to_scene(xrefEditableNode * caller_node)
+void xrefGraph::add_edges_to_scene(xrefSceneNode * caller_node)
 {
     auto main = MainWindow::m_singleton;
 
-    for(auto callee: caller_node->m_src_node->m_callees) {
-        xrefEditableNode * callee_node = m_editable_nodes[callee];
+    for(auto callee: caller_node->m_node->m_src_node->m_callees) {
+        xrefSceneNode * callee_node = m_scene_nodes[callee];
         // TODO: produce a warning here?
         if (! callee_node) continue;
 
-        auto edge = new xrefEditableEdge(caller_node, callee_node);
+        auto edge = new xrefSceneEdge(caller_node, callee_node);
         edge->setZValue(10);
         caller_node->m_linked_edges.append(edge);
         callee_node->m_linked_edges.append(edge);
@@ -184,7 +184,7 @@ void xrefGraph::apply_layout(const QSet<xrefEditableNode *> &nodes_affected, con
     // copy editable directed edges (they can overlap in opposite directions)
     foreach(xrefEditableNode * my_node, nodes_affected) {
         auto gv_from = enode_to_agnode[my_node];
-        foreach(xrefEditableEdge * my_edge, my_node->m_linked_edges) {
+        foreach(xrefSceneEdge * my_edge, my_node->m_linked_edges) {
             auto gv_to = enode_to_agnode[my_edge->m_dst];
             agedge(graph, gv_from, gv_to);
         }

@@ -6,20 +6,20 @@
 #include <QPoint>
 #include <QGraphicsLineItem>
 
-class xrefEditableNode;
+class xrefSceneNode;
 
 /// Describes a connecting line between two nodes on scene
-class xrefEditableEdge : public QGraphicsLineItem
+class xrefSceneEdge : public QGraphicsLineItem
 {
 public:
-    xrefEditableEdge(xrefEditableNode * src, xrefEditableNode * dst);
-    virtual ~xrefEditableEdge() {}
+    xrefSceneEdge(xrefSceneNode * src, xrefSceneNode * dst);
+    virtual ~xrefSceneEdge() {}
 
-    void update_edge_coords();
+    void update_scene_edge_coords();
 
 public:
-    xrefEditableNode * m_src = nullptr;
-    xrefEditableNode * m_dst = nullptr;
+    xrefSceneNode * m_src = nullptr;
+    xrefSceneNode * m_dst = nullptr;
 };
 
 #endif // XREF_EDGE_H

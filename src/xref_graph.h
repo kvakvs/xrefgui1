@@ -5,7 +5,7 @@
 #include <QMap>
 #include <QSet>
 
-class xrefEditableEdge;
+class xrefSceneEdge;
 class xrefEditableNode;
 class xrefSourceNode;
 class xrefGraphvizGraph;
@@ -14,7 +14,7 @@ class xrefGraph {
 public:
     virtual ~xrefGraph();
 
-    void add_edges_to_scene(xrefEditableNode *caller_node);
+    void add_edges_to_scene(xrefSceneNode *caller_node);
 
     void load_source_nodes(const QString &fn);
     void source_to_editable_nodes();
@@ -36,6 +36,8 @@ public:
     /// Editable items saved separately, modelled after m_source_nodes. User is
     /// allowed to do changes to this structure. This is used to fill m_scene
     QMap<QString, xrefEditableNode *> m_editable_nodes;
+
+    QMap<QString, xrefSceneNode *> m_scene_nodes;
 
     /// Selection on screen
     QSet<xrefEditableNode *> m_selected_nodes;

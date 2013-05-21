@@ -17,16 +17,38 @@ public:
 };
 
 
-class xrefEditableEdge;
+class xrefSceneEdge;
 
 
-/// Describes a visible node on screen.
-class xrefEditableNode: public QGraphicsRectItem
+/// Describes node as part of editable set
+class xrefEditableNode
 {
 public:
     //xrefEditableNode();
     xrefEditableNode(const QString & name);
     virtual ~xrefEditableNode() {}
+
+public:
+    xrefSourceNode * m_src_node = nullptr;
+    QString m_name;
+    QString m_app_name;
+
+    struct {
+        bool show = true;
+        bool edges_out = true;
+        bool edges_in = false;
+    } m_editor_flags;
+
+    bool m_pinned; // do not move node when changing layout
+//    bool m_draw_out_edges = false;
+//    bool m_draw_in_edges = false;
+};
+
+class xrefSceneNode: public QGraphicsRectItem
+{
+public:
+    xrefSceneNode(xrefEditableNode * node);
+    virtual ~xrefSceneNode() {}
 
     QPointF get_attach_point_for_edge();
     void set_rect_update_edges(const QRectF &rect);
@@ -38,20 +60,8 @@ public:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 public:
-    xrefSourceNode * m_src_node = nullptr;
-    QString m_name;
-    QString m_app_name;
-    QList<xrefEditableEdge *> m_linked_edges;
-
-    struct {
-        bool show = true;
-        bool edges_out = true;
-        bool edges_in = false;
-    } m_editor_flags;
-
-    bool m_pinned; // do not move node when changing layout
-//    bool m_draw_out_edges = false;
-//    bool m_draw_in_edges = false;
+    xrefEditableNode * m_node;
+    QList<xrefSceneEdge *> m_linked_edges;
 };
 
 #endif // XREF_NODE_H
