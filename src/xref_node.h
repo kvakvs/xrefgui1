@@ -39,6 +39,8 @@ public:
         bool edges_in = false;
     } m_editor_flags;
 
+    QPointF m_position;
+    QSizeF  m_scene_size;
     bool m_pinned; // do not move node when changing layout
     bool m_layout_use_out_edges = false;
     bool m_layout_use_in_edges = false;
@@ -54,6 +56,9 @@ public:
 
     QPointF get_attach_point_for_edge();
     void set_rect_update_edges(const QRectF &rect);
+
+    /// Searches linked edges for specific direction
+    bool has_edge(xrefSceneNode * nfrom, xrefSceneNode * nto);
 
 public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,

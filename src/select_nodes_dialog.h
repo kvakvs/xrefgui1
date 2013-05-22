@@ -19,7 +19,8 @@ class SelectNodesDialog : public QDialog
 
 public:
     explicit SelectNodesDialog(QWidget *parent, QList<QString> appnames,
-                               QList<xrefSourceNode *> nodes);
+                               QList<xrefSourceNode *> nodes,
+                               QList<QString> selected_modules);
     ~SelectNodesDialog();
 
 public:
@@ -31,17 +32,14 @@ private:
 
 private slots:
     void on_buttonSelectAll_clicked();
-
     void on_buttonSelectNone_clicked();
-
     void on_buttonSave_clicked();
-
     void on_buttonCancel_clicked();
-
     void on_appsLW_itemChanged(QListWidgetItem *item);
 
 private:
     Ui::SelectNodesDialog *ui;
+    bool m_populating_now = false;
 };
 
 #endif // SELECT_NODES_DIALOG_H

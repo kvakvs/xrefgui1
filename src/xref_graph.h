@@ -25,7 +25,7 @@ public:
     void source_to_editable_nodes();
 
     /// Copies names and edges from editable nodes to scene
-    void editable_to_scene_nodes(const QSet<QString> & node_names);
+    void recreate_scene_from_editable(const QSet<QString> & node_names);
 
     /// Forms a graphviz memory structure and calls graphviz layout function
     void apply_layout(const char * gv_layout_method);
@@ -36,6 +36,9 @@ public:
 
     void clear_editable();
     void transform(const QTransform & tr);
+
+    /// Saves coords from scene to editable nodes
+    void save_scene_to_editable();
 
     /// Selects item background color to distinguish per application
     static QBrush choose_brush(xrefEditableNode * ed_node,

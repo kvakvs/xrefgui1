@@ -82,6 +82,8 @@ private slots:
 
     void on_actionScaleMinus20_triggered();
 
+    void on_actionModules_and_apps_triggered();
+
 private:
     Ui::MainWindow * ui = nullptr;
 

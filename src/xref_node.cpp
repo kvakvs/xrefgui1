@@ -10,8 +10,9 @@
 #include "xref_edge.h"
 
 xrefEditableNode::xrefEditableNode(const QString &name)
-    : m_name(name)
+    : m_name(name), m_scene_size(0.0, 0.0)
 {
+    m_position = QPointF(rand() % 1300, rand() % 700);
 }
 
 xrefSceneNode::xrefSceneNode(xrefEditableNode * node)
@@ -34,7 +35,7 @@ void xrefSceneNode::paint(QPainter *painter,
     auto font_height = font_metrics.height();
 
     // update rect with text size
-    if (bb.width() == 0) {
+    if (bb.width() < 5 || bb.height() < 5) {
         bb.setWidth(font_metrics.width(m_node->m_name));
         bb.setHeight(font_height);
         setRect(bb);
@@ -73,6 +74,15 @@ void xrefSceneNode::set_rect_update_edges(const QRectF &rect)
     foreach(xrefSceneEdge * e, m_linked_edges) {
         e->update_scene_edge_coords();
     }
+}
+
+bool xrefSceneNode::has_edge(xrefSceneNode *nfrom, xrefSceneNode *nto)
+{
+    foreach(xrefSceneEdge * e, m_linked_edges) {
+        if (e->m_src == nfrom && e->m_dst == nto) { return true; }
+    }
+
+    return false;
 }
 
 QVariant xrefSceneNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)

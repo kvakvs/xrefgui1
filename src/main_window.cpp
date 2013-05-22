@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_variant_manager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
             this, SLOT(on_property_value_changed(QtProperty *, const QVariant &)));
+
+    showMaximized();
 }
 
 MainWindow::~MainWindow()
@@ -101,6 +103,8 @@ void MainWindow::save_as_image(const QString &filename)
     image.fill(Qt::white);
 
     QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::TextAntialiasing);
     m_scene->render(&painter);
     image.save(filename);
 }
@@ -184,14 +188,28 @@ void MainWindow::on_actionSpline_triggered(bool checked)
 void MainWindow::on_actionReset_and_populate_triggered()
 {
     auto dialog = new SelectNodesDialog(
-                this, m_xrefgraph.m_app_modules.keys(),
-                m_xrefgraph.m_source_nodes.values()
+                this, m_xrefgraph.m_app_modules.keys(), // app names
+                m_xrefgraph.m_source_nodes.values(), // module names
+                QList<QString>() // selected
                 );
     if (dialog->exec() == QDialog::Accepted) {
         m_scene->clear();
         m_xrefgraph.clear_editable();
         m_xrefgraph.source_to_editable_nodes();
-        m_xrefgraph.editable_to_scene_nodes(dialog->m_selected_modules);
+        m_xrefgraph.recreate_scene_from_editable(dialog->m_selected_modules);
+    }
+}
+
+void MainWindow::on_actionModules_and_apps_triggered()
+{
+    auto dialog = new SelectNodesDialog(
+                this, m_xrefgraph.m_app_modules.keys(), // app names
+                m_xrefgraph.m_source_nodes.values(), // module names
+                m_xrefgraph.m_scene_nodes.keys() // selected
+                );
+    if (dialog->exec() == QDialog::Accepted) {
+        m_xrefgraph.save_scene_to_editable();
+        m_xrefgraph.recreate_scene_from_editable(dialog->m_selected_modules);
     }
 }
 
@@ -199,6 +217,7 @@ void MainWindow::on_actionClear_everything_triggered()
 {
     m_scene->clear();
     m_xrefgraph.clear_editable();
+    m_scene->update();
 }
 
 void MainWindow::on_actionSave_to_graph_png_triggered()
@@ -231,3 +250,4 @@ void MainWindow::on_actionScaleMinus20_triggered()
     m_scene->setSceneRect(m_scene->itemsBoundingRect());
     m_scene->update();
 }
+

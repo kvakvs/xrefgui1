@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>681</width>
-     <height>27</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuGraph">
@@ -30,9 +30,10 @@
      <string>Graph</string>
     </property>
     <addaction name="actionReset_and_populate"/>
-    <addaction name="actionSpline"/>
-    <addaction name="actionClear_everything"/>
+    <addaction name="actionModules_and_apps"/>
     <addaction name="actionSave_to_graph_png"/>
+    <addaction name="separator"/>
+    <addaction name="actionClear_everything"/>
    </widget>
    <widget class="QMenu" name="menuLayout">
     <property name="title">
@@ -71,7 +72,7 @@
   </widget>
   <action name="actionDot">
    <property name="text">
-    <string>dot (can be slow)</string>
+    <string>dot (layered hierarchical) (slow!)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'dot' layout</string>
@@ -79,7 +80,7 @@
   </action>
   <action name="actionNeato">
    <property name="text">
-    <string>neato</string>
+    <string>neato (spring model)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'neato' layout</string>
@@ -90,7 +91,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>fdp</string>
+    <string>force directed placement (fdp)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'fdp' layout</string>
@@ -101,7 +102,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>sfdp</string>
+    <string>scalable force directed (sfdp)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'sfdp' layout</string>
@@ -109,7 +110,7 @@
   </action>
   <action name="actionTwopi">
    <property name="text">
-    <string>twopi</string>
+    <string>twopi (2π)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'twopi' radial layout</string>
@@ -120,7 +121,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>circo (can be slow)</string>
+    <string>circo (slow!)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'circo' circular layout</string>
@@ -197,6 +198,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionModules_and_apps">
+   <property name="text">
+    <string>Modules and apps</string>
+   </property>
+   <property name="toolTip">
+    <string>Add/remove modules and apps</string>
    </property>
   </action>
  </widget>

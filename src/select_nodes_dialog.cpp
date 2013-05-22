@@ -4,14 +4,18 @@
 #include "ui_select_nodes_dialog.h"
 #include "xref_node.h"
 
-SelectNodesDialog::SelectNodesDialog(QWidget *parent,
-                                     QList<QString> appnames,
-                                     QList<xrefSourceNode *> nodes) :
-    QDialog(parent),
-    ui(new Ui::SelectNodesDialog)
+SelectNodesDialog::SelectNodesDialog(
+        QWidget *parent, QList<QString> appnames,
+        QList<xrefSourceNode *> nodes,
+        QList<QString> selected_modules)
+    : QDialog(parent)
+    , ui(new Ui::SelectNodesDialog)
 {
     ui->setupUi(this);
+    QSet<QString> appnames_in_module_list;
 
+    m_populating_now = true;
+    // populate modules list
     foreach(xrefSourceNode * n, nodes) {
         // TODO: produce a warning?
         if (!n) continue;
@@ -19,17 +23,31 @@ SelectNodesDialog::SelectNodesDialog(QWidget *parent,
         // app name prefix is used when selecting modules belonging to that app
         QString item_name = QString("%1: %2").arg(n->m_app_name).arg(n->m_name);
         QListWidgetItem *listItem = new QListWidgetItem(item_name, ui->modulesLW);
-        listItem->setCheckState(Qt::Unchecked);
+        if (selected_modules.contains(n->m_name)) {
+            listItem->setCheckState(Qt::Checked);
+            // save app name of every module, to set checks in apps list below
+            appnames_in_module_list.insert(n->m_app_name);
+        } else {
+            listItem->setCheckState(Qt::Unchecked);
+        }
+        // add to widget
         ui->modulesLW->addItem(listItem);
     }
     ui->modulesLW->sortItems();
 
+    // Populate applications list
     foreach(auto appname, appnames) {
         QListWidgetItem *listItem = new QListWidgetItem(appname, ui->appsLW);
-        listItem->setCheckState(Qt::Unchecked);
+        if (appnames_in_module_list.contains(appname)) {
+            listItem->setCheckState(Qt::Checked);
+        } else {
+            listItem->setCheckState(Qt::Unchecked);
+        }
+        // add to widget
         ui->appsLW->addItem(listItem);
     }
     ui->appsLW->sortItems();
+    m_populating_now = false;
 }
 
 SelectNodesDialog::~SelectNodesDialog()
@@ -94,6 +112,7 @@ void SelectNodesDialog::on_buttonCancel_clicked()
 
 void SelectNodesDialog::on_appsLW_itemChanged(QListWidgetItem *item)
 {
+    if (m_populating_now) { return; }
     auto check_state = item->checkState();
 
     // select modules by app prefix

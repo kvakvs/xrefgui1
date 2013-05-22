@@ -28,9 +28,16 @@ void xrefGraph::add_edges_to_scene(xrefSceneNode * caller_node)
 {
     auto main = MainWindow::m_singleton;
 
-    foreach(auto callee, caller_node->m_node->m_src_node->m_callees) {
-        if (! m_scene_nodes.contains(callee)) continue;
+    foreach(auto callee, caller_node->m_node->m_src_node->m_callees)
+    {
+        // if scene contains no callee node
+        if (! m_scene_nodes.contains(callee)) { continue; }
+
         xrefSceneNode * callee_node = m_scene_nodes.value(callee);
+        Q_ASSERT(callee_node != nullptr);
+
+        // if edge exists
+        if (caller_node->has_edge(caller_node, callee_node)) { continue; }
 
         auto edge = new xrefSceneEdge(caller_node, callee_node);
         edge->setZValue(10);
@@ -112,24 +119,35 @@ void xrefGraph::source_to_editable_nodes()
     }
 }
 
-void xrefGraph::editable_to_scene_nodes(const QSet<QString> & node_names)
+void xrefGraph::recreate_scene_from_editable(const QSet<QString> & node_names)
 {
     auto main = MainWindow::m_singleton;
-
     main->m_scene->clear();
+    m_scene_nodes.clear();
 
+    // create scene nodes
     foreach(xrefEditableNode *ed_node, m_editable_nodes) {
         Q_ASSERT(ed_node != nullptr);
+
+        // if user not interested in this node
         if (! node_names.contains(ed_node->m_name)) { continue; }
+
+        // if node already exists in scene - skip
+        //if (m_scene_nodes.contains(ed_node->m_name)) { continue; }
 
         // Make an editable node (which is also a scene item)
         auto scene_node = new xrefSceneNode(ed_node);
-        scene_node->setRect(rand() % 1000, rand() % 500, 0, 0);
-        scene_node->setBrush(QBrush(QColor(255, 255, 224)));
+
+        auto & pos = ed_node->m_position;
+        auto & sz = ed_node->m_scene_size;
+//        scene_node->setPos(pos);
+        scene_node->setRect(pos.x() - sz.width()/2, pos.y() - sz.height()/2,
+                            sz.width(), sz.height());
         scene_node->setFlag(QGraphicsItem::ItemIsMovable, true);
         scene_node->setFlag(QGraphicsItem::ItemIsSelectable, true);
         scene_node->setFlag(QGraphicsItem::ItemIsFocusable, true);
         scene_node->setBrush(choose_brush(ed_node, scene_node));
+
         m_scene_nodes.insert(ed_node->m_name, scene_node);
 
         // add node as scene item to scene
@@ -137,16 +155,22 @@ void xrefGraph::editable_to_scene_nodes(const QSet<QString> & node_names)
         main->m_scene->addItem(scene_node);
     }
 
+    // create edges
     foreach(xrefSourceNode * caller_src_node, m_source_nodes) {
         auto caller_src_name = caller_src_node->m_name;
-        if (! node_names.contains(caller_src_name)) { continue; }
-        if (! m_scene_nodes.contains(caller_src_name)) { continue; }
-        xrefSceneNode * caller_node = m_scene_nodes.value(caller_src_name);
 
+        // if user not interested in this node
+        if (! node_names.contains(caller_src_name)) { continue; }
+        // if scene does not contains caller
+        //if (! m_scene_nodes.contains(caller_src_name)) { continue; }
+
+        xrefSceneNode * caller_node = m_scene_nodes.value(caller_src_name);
         Q_ASSERT(caller_node != nullptr);
+
         add_edges_to_scene(caller_node);
     }
     main->m_scene->setSceneRect(main->m_scene->itemsBoundingRect());
+    main->m_scene->update();
 }
 
 // @private
@@ -236,6 +260,7 @@ void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const 
         // reposition center of rectangle on the point from graphviz
         my_node->set_rect_update_edges(new_rc);
     }
+    save_scene_to_editable();
 
     // done
     foreach(Agraph_t * g, subgraphs) { agclose(g); }
@@ -266,6 +291,15 @@ void xrefGraph::transform(const QTransform &tr)
 
             scene_node->set_rect_update_edges(rc.translated(diff));
         }
+    }
+}
+
+void xrefGraph::save_scene_to_editable()
+{
+    foreach(xrefSceneNode * s_node, m_scene_nodes) {
+        auto ed_node = s_node->m_node;
+        ed_node->m_position = s_node->rect().center();
+        ed_node->m_scene_size = s_node->rect().size();
     }
 }
 
