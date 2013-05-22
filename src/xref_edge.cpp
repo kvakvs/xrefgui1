@@ -1,5 +1,6 @@
 #include "xref_edge.h"
 #include "xref_node.h"
+#include "render_things.h"
 
 xrefSceneEdge::xrefSceneEdge(xrefSceneNode *src, xrefSceneNode *dst)
     : QGraphicsLineItem(), m_src(src), m_dst(dst)
@@ -17,4 +18,10 @@ void xrefSceneEdge::update_scene_edge_coords()
     if (line() != new_line) {
         setLine(new_line);
     }
+}
+
+void xrefSceneEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QLineF l = line();
+    DrawThings::arrow(*painter, l.p1(), l.p2());
 }

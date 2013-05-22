@@ -18,6 +18,10 @@ public:
     void update_scene_edge_coords();
 
 public:
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                       QWidget *widget);
+
+public:
     xrefSceneNode * m_src = nullptr;
     xrefSceneNode * m_dst = nullptr;
 };
