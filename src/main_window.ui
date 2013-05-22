@@ -71,7 +71,7 @@
   </widget>
   <action name="actionDot">
    <property name="text">
-    <string>dot</string>
+    <string>dot (can be slow)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'dot' layout</string>
@@ -120,7 +120,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>circo</string>
+    <string>circo (can be slow)</string>
    </property>
    <property name="toolTip">
     <string>Apply 'circo' circular layout</string>
@@ -168,6 +168,9 @@
   <action name="actionReset_and_populate">
    <property name="text">
     <string>Reset and populate</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionClear_everything">

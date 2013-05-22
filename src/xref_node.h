@@ -40,8 +40,10 @@ public:
     } m_editor_flags;
 
     bool m_pinned; // do not move node when changing layout
-//    bool m_draw_out_edges = false;
-//    bool m_draw_in_edges = false;
+    bool m_layout_use_out_edges = false;
+    bool m_layout_use_in_edges = false;
+//    bool m_show_out_edges = false;
+//    bool m_show_in_edges = false;
 };
 
 class xrefSceneNode: public QGraphicsRectItem
