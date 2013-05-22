@@ -175,12 +175,21 @@ void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const 
 
     QMap<xrefSceneNode *, Agnode_t *> snode_to_agnode;
     QMap<Agnode_t *, xrefSceneNode *> agnode_to_snode;
+    QMap<QString, Agraph_t *> subgraphs;
 
     // copy editable nodes to graphviz nodes
     foreach(xrefSceneNode * my_node, nodes_affected) {
+        // get or make subgraph
+        if (! subgraphs.contains(my_node->m_app_name)) {
+            subgraphs.insert(my_node->m_app_name,
+                             agsubg(graph, const_cast<char *>(qPrintable(my_node->m_name)))
+                             );
+        }
+        Agraph_t * subg = subgraphs.value(my_node->m_app_name);
+
         // note: node name here must be unique
         auto gv_node = agnode(
-                    graph,
+                    subg,
                     const_cast<char *>(qPrintable(my_node->m_name))
                     );
 
@@ -229,6 +238,7 @@ void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const 
     }
 
     // done
+    foreach(Agraph_t * g, subgraphs) { agclose(g); }
     agclose(graph);
     gvFreeContext(gvc);
 }

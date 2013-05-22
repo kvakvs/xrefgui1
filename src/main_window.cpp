@@ -1,4 +1,5 @@
 #include <QTransform>
+#include <QMessageBox>
 
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
@@ -86,7 +87,16 @@ void MainWindow::save_as_image(const QString &filename)
     m_scene->setSceneRect(m_scene->itemsBoundingRect());
 
     // Create the image with the exact size of the shrunk scene
-    QImage image(m_scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
+    auto sz = m_scene->sceneRect().size().toSize();
+    if (sz.width() >= 32768 || sz.height() >= 32768) {
+        QMessageBox msgBox;
+        auto F = tr("Working area for saving PNG is too large (%1 x %2) limit is 32768 in either dimension");
+        msgBox.setText(QString(F).arg(sz.width()).arg(sz.height()));
+        msgBox.exec();
+        return;
+    }
+
+    QImage image(sz, QImage::Format_ARGB32);
     // Start all pixels transparent
     image.fill(Qt::white);
 
