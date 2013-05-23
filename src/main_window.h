@@ -71,17 +71,11 @@ private slots:
     void on_actionOsage_triggered();
     void on_actionSpline_triggered(bool checked);
     void on_property_value_changed(QtProperty *p, const QVariant &v);
-
     void on_actionReset_and_populate_triggered();
-
     void on_actionClear_everything_triggered();
-
     void on_actionSave_to_graph_png_triggered();
-
     void on_actionScalePlus20_triggered();
-
     void on_actionScaleMinus20_triggered();
-
     void on_actionModules_and_apps_triggered();
 
 private:
