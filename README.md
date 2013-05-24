@@ -41,9 +41,11 @@ Key concepts:
 
 # input.json format
 
-{ "connections": {"appname1": ["modname1", "modname2", ...]}
-, "applications": {"appname1": ["app1mod1", "app1mod2", ...]}
+```
+{ "connections": {"modname3": ["modname1", "modname2", ...]} /* per module call graph */
+, "applications": {"appname1": ["app1mod1", "app1mod2", ...]} /* app-module relations */
 }
+```
 
 Two keys are defined. "connections" defines per module callee list.
 "applications" defines how modules relate to applications.
