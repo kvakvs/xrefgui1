@@ -18,7 +18,8 @@ start(ConfigFile) ->
     Config = read_config(ConfigFile),
     {ok, _Pid} = xref:start(?NAME),
     RootDir = proplists:get_value(root_dir, Config),
-    xref:add_release(?NAME, RootDir, {name, ?NAME}).
+    io:format("Adding release '~p': ~s~n", [?NAME, RootDir]),
+    {ok, _} = xref:add_release(?NAME, RootDir, {name, ?NAME}).
 
 
 stop() ->

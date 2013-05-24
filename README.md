@@ -27,10 +27,16 @@ Key concepts:
 
 # Using
 
-1.  Prepare data using this tool: git://github.com/lehoff/erl_csi.git
-    (it just wraps around Erlang xref library)
-1.  Recode data to JSON using ???? (hello JD!)
-1.  Put input.json in the program starting directory
+1.  Compile your application, we need `.beam` files!
+1.  Go to erl_csi folder, and edit `otp_analysis.config`, add path to your application
+    directory (where all application dirs are stored, this can be your application root,
+    or `apps/` subdirectory in your project if you have multiple applications, of `lib/`
+    really depends on your project structure). Add all application names you're
+    interested in.
+1.  Run the attached script, it will crash if you have a problem (like duplicate module
+    names) or produce `input.json` on success. It contains call graph information as well
+    as module/application relations.
+1.  Copy `input.json` in the program starting directory
 1.  Run the GUI.
 
 # input.json format

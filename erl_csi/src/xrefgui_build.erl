@@ -1,4 +1,4 @@
--module(learnkred).
+-module(xrefgui_build).
 -export([start/0]).
 
 start() ->
@@ -12,6 +12,7 @@ start() ->
 %% edges.json with per-module callee list.
 build_edges() ->
   Apps = otp_analysis:apps(),
+  io:format("*** apps found: ~p~n", [Apps]),
   Mods0 = lists:flatten([otp_analysis:app_modules(A) || A <- Apps]),
   AppModMap = [{A, otp_analysis:app_modules(A)} || A <- Apps],
 
@@ -25,14 +26,12 @@ build_edges() ->
                             _ -> false
                           end
                       end, Mods0),
+  io:format("*** mods found: ~p~n", [Apps]),
 
   Calls0 = [otp_analysis:module_to_module(M) || M <- Mods],
   Calls1 = {struct, [
                      {atom_to_binary(K, latin1),
                       V}
-                      %%lists:map(fun(V0) ->
-                      %%              erlang:atom_to_binary(V0, latin1)
-                      %%          end, V)}
                      || {K, V} <- Calls0
                     ]
            },
@@ -40,6 +39,7 @@ build_edges() ->
                    , {<<"applications">>, AppModMap}
                    ]
           },
+  io:format("*** ~p calls found~n", [length(lists:flatten(Calls0))]),
   J = mochijson2:encode(Calls),
 
   file:write_file("input.json", J),
