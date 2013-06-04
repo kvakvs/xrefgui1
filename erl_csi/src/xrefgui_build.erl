@@ -1,8 +1,8 @@
 -module(xrefgui_build).
--export([start/0]).
+-export([start/1]).
 
-start() ->
-  otp_analysis:start("otp_analysis.cfg"),
+start(CfgPath) ->
+  otp_analysis:start(CfgPath),
 
   build_edges(),
   ok.
