@@ -1,5 +1,5 @@
 #!/bin/sh
 
-mkdir ebin
+mkdir -p ebin
 erl -make && \
-erl -pz ebin -s learnkred
+erl -pz ebin -s xrefgui_build start $1
