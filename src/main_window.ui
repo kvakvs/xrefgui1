@@ -51,8 +51,17 @@
     <addaction name="actionScalePlus20"/>
     <addaction name="actionScaleMinus20"/>
    </widget>
+   <widget class="QMenu" name="menuViews">
+    <property name="title">
+     <string>Views</string>
+    </property>
+    <addaction name="actionNew_view"/>
+    <addaction name="actionSwitch_view"/>
+    <addaction name="actionDelete_view"/>
+   </widget>
    <addaction name="menuGraph"/>
    <addaction name="menuLayout"/>
+   <addaction name="menuViews"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidget0">
@@ -206,6 +215,21 @@
    </property>
    <property name="toolTip">
     <string>Add/remove modules and apps</string>
+   </property>
+  </action>
+  <action name="actionNew_view">
+   <property name="text">
+    <string>New view</string>
+   </property>
+  </action>
+  <action name="actionSwitch_view">
+   <property name="text">
+    <string>Switch view</string>
+   </property>
+  </action>
+  <action name="actionDelete_view">
+   <property name="text">
+    <string>Delete view</string>
    </property>
   </action>
  </widget>

@@ -30,6 +30,7 @@ void DrawThings::arrow(QPainter &p, const QPointF &p1, const QPointF &p2)
     //line_with_offset_from_p1(p, p1, p2, 20);
 
     arrow_head(p, line, p1 + (p2 - p1) * 0.85, ARROW_SIZE, ARROW_SWING);
+    arrow_head(p, line, p1 + (p2 - p1) * 0.25, ARROW_SIZE, ARROW_SWING);
 }
 
 void DrawThings::arrow_head(QPainter &p, const QLineF & line, const QPointF &point,

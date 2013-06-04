@@ -94,6 +94,9 @@ private:
     /// Generates list of editable nodes from source nodes (the first run). Erases
     /// all user work, so use this only once when editable nodes is empty
     void source_to_editable_nodes();
+
+    /// Populates Views menu with names of available views
+    void update_view_menu();
 };
 
 #endif // MAIN_WINDOW_H

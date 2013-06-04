@@ -31,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // load JSON data and populate view
     m_xrefgraph.load_source_nodes("input.json");
+    m_xrefgraph.view_new(tr("default"));
+    update_view_menu();
 
     // property manager and property editor tab
     m_variant_manager = new QtVariantPropertyManager(this);
@@ -251,3 +253,35 @@ void MainWindow::on_actionScaleMinus20_triggered()
     m_scene->update();
 }
 
+
+void MainWindow::update_view_menu()
+{
+    auto a1 = ui->actionSwitch_view;
+    auto m1 = new QMenu(this);
+    foreach(auto ename, m_xrefgraph.view_get_names()) {
+        auto act = m1->addAction(ename);
+        if (m_xrefgraph.view_get_current() == ename) {
+            act->setEnabled(false);
+            act->setCheckable(true);
+            act->setChecked(true);
+        }
+    }
+    a1->setMenu(m1);
+
+    auto a2 = ui->actionDelete_view;
+    auto m2 = new QMenu(this);
+    foreach(auto ename, m_xrefgraph.view_get_names()) {
+        auto act = m2->addAction(ename);
+        if (m_xrefgraph.view_get_current() == ename) {
+            act->setEnabled(false);
+            act->setCheckable(true);
+            act->setChecked(true);
+        }
+    }
+    a2->setMenu(m2);
+}
+
+void MainWindow::on_actionNew_view_triggered()
+{
+    //m_xrefgraph.view_new()
+}

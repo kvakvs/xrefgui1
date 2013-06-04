@@ -14,13 +14,56 @@
 
 xrefGraph::~xrefGraph()
 {
-    foreach(xrefSourceNode * n, m_source_nodes) {
-        delete n;
-    }
+    foreach(xrefSourceNode * n, m_source_nodes) { delete n; }
     m_source_nodes.clear();
-    foreach(xrefEditableNode * n, m_editable_nodes) {
-        delete n;
+    foreach(View * v, m_views) { delete v; }
+    m_views.clear();
+}
+
+bool xrefGraph::view_new(const QString &name)
+{
+    if (m_views.contains(name)) { return false; }
+    m_views.insert(name, new View(name));
+    view_select(name);
+    return true;
+}
+
+bool xrefGraph::view_select(const QString &name)
+{
+    if (!m_views.contains(name)) { return false; }
+    m_view = m_views.value(name);
+    return true;
+}
+
+bool xrefGraph::view_delete(const QString &name)
+{
+    if (!m_views.contains(name)) { return false; }
+    delete m_views.value(name);
+    m_views.remove(name);
+    return true;
+}
+
+QList<QString> xrefGraph::view_get_names()
+{
+    QList<QString> result;
+    foreach(View * v, m_views) {
+        result.append(v->m_name);
     }
+    return result;
+}
+
+const QString &xrefGraph::view_get_current()
+{
+    return m_view->m_name;
+}
+
+xrefGraph::View::~View() {
+    clear();
+}
+
+void xrefGraph::View::clear()
+{
+    foreach(xrefEditableNode * n, m_editable_nodes) { delete n; }
     m_editable_nodes.clear();
 }
 
@@ -115,7 +158,7 @@ void xrefGraph::source_to_editable_nodes()
         auto editable = new xrefEditableNode(src_node->m_name);
         editable->m_app_name = src_node->m_app_name;
         editable->m_src_node = src_node;
-        m_editable_nodes.insert(src_node->m_name, editable);
+        m_view->m_editable_nodes.insert(src_node->m_name, editable);
     }
 }
 
@@ -126,7 +169,7 @@ void xrefGraph::recreate_scene_from_editable(const QSet<QString> & node_names)
     m_scene_nodes.clear();
 
     // create scene nodes
-    foreach(xrefEditableNode *ed_node, m_editable_nodes) {
+    foreach(xrefEditableNode *ed_node, m_view->m_editable_nodes) {
         Q_ASSERT(ed_node != nullptr);
 
         // if user not interested in this node
@@ -270,10 +313,7 @@ void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const 
 
 void xrefGraph::clear_editable()
 {
-    foreach(xrefEditableNode * n, m_editable_nodes) {
-        delete n;
-    }
-    m_editable_nodes.clear();
+    m_view->clear();
     //m_app_modules.clear();
     m_scene_nodes.clear();
     m_selected_nodes.clear();
@@ -281,7 +321,7 @@ void xrefGraph::clear_editable()
 
 void xrefGraph::transform(const QTransform &tr)
 {
-    foreach(xrefEditableNode *ed_node, m_editable_nodes) {
+    foreach(xrefEditableNode *ed_node, m_view->m_editable_nodes) {
         Q_ASSERT(ed_node != nullptr);
         if (m_scene_nodes.contains(ed_node->m_name)) {
             xrefSceneNode * scene_node = m_scene_nodes.value(ed_node->m_name);

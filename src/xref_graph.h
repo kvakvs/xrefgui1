@@ -17,6 +17,14 @@ class xrefGraph {
 public:
     virtual ~xrefGraph();
 
+    //------ VIEW support ------
+    bool view_new(const QString & name);
+    bool view_select(const QString & name);
+    bool view_delete(const QString & name);
+    QList<QString> view_get_names();
+    const QString & view_get_current();
+    //--------------------------
+
     void add_edges_to_scene(xrefSceneNode *caller_node);
 
     void load_source_nodes(const QString &fn);
@@ -51,14 +59,31 @@ public:
     /// m_editable_nodes without sizes, positions and other attributes
     QMap<QString, xrefSourceNode *> m_source_nodes;
 
-    /// Editable items saved separately, modelled after m_source_nodes. User is
-    /// allowed to do changes to this structure. This is used to fill m_scene
-    QMap<QString, xrefEditableNode *> m_editable_nodes;
-
     QMap<QString, xrefSceneNode *> m_scene_nodes;
 
     /// Selection on screen
     QSet<xrefEditableNode *> m_selected_nodes;
+
+private:
+    class View {
+    public:
+        explicit View(const QString n): m_editable_nodes(), m_name(n) {
+        }
+        ~View();
+
+        void clear();
+
+        /// Editable items saved separately, modelled after m_source_nodes. User is
+        /// allowed to do changes to this structure. This is used to fill m_scene
+        QMap<QString, xrefEditableNode *> m_editable_nodes;
+        QString m_name;
+    };
+
+    /// Collection of named editable views of the input graph (with coords, colors etc)
+    QMap<QString, View *> m_views;
+
+    /// Current selected view
+    View * m_view = nullptr;
 };
 
 #endif // XREF_GRAPH_H
