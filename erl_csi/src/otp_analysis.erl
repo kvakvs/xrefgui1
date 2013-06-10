@@ -19,7 +19,8 @@ start(ConfigFile) ->
     {ok, _Pid} = xref:start(?NAME),
     RootDir = proplists:get_value(root_dir, Config),
     io:format("Adding release '~p': ~s~n", [?NAME, RootDir]),
-    {ok, _} = xref:add_release(?NAME, RootDir, {name, ?NAME}).
+    {ok, _} = xref:add_release(?NAME, RootDir, {name, ?NAME}),
+    Config.
 
 
 stop() ->
@@ -29,12 +30,11 @@ read_config(File) ->
     {ok,Config} = file:consult(File),
     Config.
 
-read_config() ->
-    read_config("otp_analysis.cfg").
+%read_config() ->
+%    read_config("otp_analysis.cfg").
 
 
-read_apps() ->
-    Config = read_config(),
+read_apps(Config) ->
     proplists:get_value(applications, Config).
 
 
@@ -50,20 +50,20 @@ outgoing_calls(Apps) ->
          not lists:member(To, Apps)
     ].
 
-core_outgoing_calls() ->
-    outgoing_calls(read_apps()).
+core_outgoing_calls(Config) ->
+    outgoing_calls(read_apps(Config)).
 
 %% @doc used to see which modules that we do not consider to be part
 %% of the core modules of Erlang for embedded purposes.
-core_analysis() ->
-    OutgoingCalls = core_outgoing_calls(),
+core_analysis(Config) ->
+    OutgoingCalls = core_outgoing_calls(Config),
     io:format("Missing applications per core application~n"),
     [ io:format("~p~n",[Pair])
       || Pair <- OutgoingCalls ].
 
-module_calls_within_app(App) ->
+module_calls_within_app(Config, App) ->
     Modules = app_modules(App),
-    M2MCalls = [ module_to_module(Mod) || Mod <- Modules ],
+    M2MCalls = [ module_to_module(Config, Mod) || Mod <- Modules ],
     Mod2ModCalls = filter_to_modules(M2MCalls, Modules),
     {App, Mod2ModCalls}.
 
@@ -109,8 +109,8 @@ atom_to_string(A) ->
     "'" ++ atom_to_list(A) ++ "'".
 
 %% @doc returns all the modules that Mod calls
-module_to_module(Mod) ->
-    Opts = read_config(),
+module_to_module(Opts, Mod) ->
+%    Opts = read_config(),
     {ok,Pre} = q("XC | " ++ atom_to_string(Mod)),
     Ignore = proplists:get_value(ignore_modules,Opts,[]),
     ToCalls = remove_to(Pre,Ignore),
