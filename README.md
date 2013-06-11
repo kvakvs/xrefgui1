@@ -28,24 +28,28 @@ Key concepts:
 # Using
 
 1.  Compile your application, we need `.beam` files!
-1.  Go to erl_csi folder, and edit `otp_analysis.config`, add path to your application
-    directory (where all application dirs are stored, this can be your application root,
+1.  Go to erl_csi folder, and create config file using `config.example` as template, add
+    path to your application directory (where all application dirs are stored, this can be
+    your application root,
     or `apps/` subdirectory in your project if you have multiple applications, of `lib/`
     really depends on your project structure). Add all application names you're
     interested in.
-1.  Run the attached script, it will crash if you have a problem (like duplicate module
+1.  Run the attached script using config filename as parameter, it will crash if you have
+    a problem (like duplicate module
     names) or produce `input.json` on success. It contains call graph information as well
     as module/application relations.
-1.  Copy `input.json` in the program starting directory
-1.  Run the GUI.
+1.  Copy `input.json` to the xrefgui starting directory
+1.  Run xrefgui.
 
 # input.json format
 
 ```
-{ "connections": {"modname3": ["modname1", "modname2", ...]} /* per module call graph */
-, "applications": {"appname1": ["app1mod1", "app1mod2", ...]} /* app-module relations */
+{ "connections": {"modname3": ["modname1", "modname2", ...]}
+, "applications": {"appname1": ["app1mod1", "app1mod2", ...]}
+, "calls", {"m1:f1/arity": ["m2:f2/arity", "m3:f3/arity"...]}
 }
 ```
 
-Two keys are defined. "connections" defines per module callee list.
-"applications" defines how modules relate to applications.
+*   *connections* defines module detail level call graph.
+*   *applications* defines how modules group in relation to applications.
+*   *calls* defined function detail level call graph.
