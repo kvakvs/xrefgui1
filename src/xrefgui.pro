@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     graphviz_graph.cpp \
     xref_edge.cpp \
     xref_graph.cpp \
-    select_nodes_dialog.cpp
+    select_nodes_dialog.cpp \
+    xref_code.cpp
 
 HEADERS  += main_window.h \
     graph_render_widget.h \
@@ -31,7 +32,8 @@ HEADERS  += main_window.h \
     graphviz_graph.h \
     xref_edge.h \
     xref_graph.h \
-    select_nodes_dialog.h
+    select_nodes_dialog.h \
+    xref_code.h
 
 FORMS    += main_window.ui \
     select_nodes_dialog.ui

@@ -12,6 +12,9 @@ class xrefSceneEdge;
 class xrefEditableNode;
 class xrefSourceNode;
 class xrefGraphvizGraph;
+class xrefCApp;
+class xrefCMod;
+class xrefCFun;
 
 class xrefGraph {
 public:
@@ -48,6 +51,19 @@ public:
     /// Saves coords from scene to editable nodes
     void save_scene_to_editable();
 
+    xrefCFun * code_get_or_create_fun(const QString & name);
+    xrefCFun * code_get_fun(const QString & name);
+    xrefCMod * code_get_mod(const QString & name);
+    xrefCApp * code_get_app(const QString & name);
+    bool code_parse_fun_name(const QString &full_name, QString &out_app,
+                             QString &out_mod, QString &out_fun);
+    xrefCApp * code_get_app_by_module_name(const QString & mod);
+
+private:
+    void load_mod_calls(const QJsonObject & jroot);
+    void load_apps(const QJsonObject & jroot);
+    void load_fun_calls(const QJsonObject & jroot);
+
     /// Selects item background color to distinguish per application
     static QBrush choose_brush(xrefEditableNode * ed_node,
                                xrefSceneNode * scene_node);
@@ -64,7 +80,17 @@ public:
     /// Selection on screen
     QSet<xrefEditableNode *> m_selected_nodes;
 
+    /// Callgraph edges for functions
+    QMap<xrefCFun *, xrefCFun *> m_fun_calls;
+
 private:
+    /// Code structure: Applications
+    QMap<QString, xrefCApp *> m_code_apps;
+    /// Code structure: Modules
+    QMap<QString, xrefCMod *> m_code_modules;
+    /// Code structure: Functions
+    QMap<QString, xrefCFun *> m_code_functions;
+
     class View {
     public:
         explicit View(const QString n): m_editable_nodes(), m_name(n) {

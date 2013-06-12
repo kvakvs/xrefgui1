@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QDebug>
 
+#include "xref_code.h"
 #include "xref_node.h"
 #include "xref_edge.h"
 #include "xref_graph.h"
@@ -90,6 +91,148 @@ void xrefGraph::add_edges_to_scene(xrefSceneNode * caller_node)
     }
 }
 
+/// Load module caller/callee dependencies list
+void xrefGraph::load_mod_calls(const QJsonObject & jroot)
+{
+    // input -> {connections: {mod1: ['mod2', 'mod3']}}
+    auto connections = jroot.value("connections").toObject();
+    for (auto n1iter = connections.begin(); n1iter != connections.end(); ++n1iter)
+    {
+        auto node1_name = n1iter.key();
+        auto src_node = new xrefSourceNode();
+        src_node->m_name = node1_name;
+
+        auto value_list = n1iter.value().toArray();
+        for (auto n2iter = value_list.begin(); n2iter != value_list.end(); ++n2iter)
+        {
+            auto callee_name = (* n2iter).toString();
+            src_node->m_callees.insert(callee_name);
+        } // for callee list
+
+        m_source_nodes.insert(node1_name, src_node);
+    } // for json keys
+
+}
+
+/// Load application list and modules belonging to apps
+void xrefGraph::load_apps(const QJsonObject & jroot)
+{
+    // input -> {applications: {app1: ['mod1', 'mod2']}}
+    auto applications = jroot.value("applications").toObject();
+    for (auto aiter = applications.begin(); aiter != applications.end(); ++aiter)
+    {
+        auto app_name = aiter.key();
+
+        auto c_app = new xrefCApp();
+        c_app->m_name = app_name;
+        m_code_apps.insert(app_name, c_app);
+
+        auto modules = aiter.value().toArray();
+        for (auto m_iter = modules.begin(); m_iter != modules.end(); ++m_iter)
+        {
+            auto mod_name = (* m_iter).toString();
+
+            auto c_mod = new xrefCMod();
+            c_mod->m_name = mod_name;
+            c_mod->m_app = c_app;
+            m_code_modules.insert(mod_name, c_mod);
+
+            if (! m_app_modules.contains(app_name)) {
+                m_app_modules.insert(app_name, QList<QString>());
+            }
+            m_app_modules[app_name].append(mod_name);
+
+            // also add app name to module node
+            if (m_source_nodes.contains(mod_name)) {
+                auto node = m_source_nodes.value(mod_name);
+                node->m_app_name = app_name;
+            }
+        } // for module list
+    }
+}
+
+/// Load function call graph edge list
+void xrefGraph::load_fun_calls(const QJsonObject & jroot)
+{
+    // input -> {connections: {mod1: ['mod2', 'mod3']}}
+    auto calls = jroot.value("calls").toObject();
+    for (auto n1iter = calls.begin(); n1iter != calls.end(); ++n1iter)
+    {
+        auto caller_name = n1iter.key();
+        auto caller_fun = code_get_or_create_fun(caller_name);
+        caller_fun->m_name = caller_name;
+
+        auto value_list = n1iter.value().toArray();
+        for (auto n2iter = value_list.begin(); n2iter != value_list.end(); ++n2iter)
+        {
+            auto callee_name = (* n2iter).toString();
+            auto callee_fun = code_get_or_create_fun(callee_name);
+            caller_fun->m_callees.append(callee_fun);
+        } // for callee list
+    } // for json keys
+
+}
+
+xrefCFun *xrefGraph::code_get_or_create_fun(const QString &full_name)
+{
+    if (m_code_functions.contains(full_name)) { return m_code_functions.value(full_name); }
+    auto f = new xrefCFun();
+    f->m_full_name = full_name;
+
+    // Given full function name parse it to app name, module name and function name
+    QString mod_name, app_name, fun_name;
+    code_parse_fun_name(full_name, app_name, mod_name, fun_name);
+
+    f->m_name = fun_name;
+    f->m_app = code_get_app(app_name);
+    f->m_module = code_get_mod(mod_name);
+
+    m_code_functions.insert(full_name, f);
+    return f;
+}
+
+xrefCFun *xrefGraph::code_get_fun(const QString &name)
+{
+    if (m_code_functions.contains(name)) { return m_code_functions.value(name); }
+    return nullptr;
+}
+
+xrefCMod *xrefGraph::code_get_mod(const QString &name)
+{
+    if (m_code_modules.contains(name)) { return m_code_modules.value(name); }
+    return nullptr;
+}
+
+xrefCApp *xrefGraph::code_get_app(const QString &name)
+{
+    if (m_code_apps.contains(name)) { return m_code_apps.value(name); }
+    return nullptr;
+}
+
+bool xrefGraph::code_parse_fun_name(const QString &full_name, QString & out_app,
+                                    QString & out_mod, QString & out_fun)
+{
+    // Parse rules for Erlang. Given function name in form of "module:function/arity"
+    // extracts module and application name
+    QStringList m_fa = full_name.split(':');
+    QStringList f_a = m_fa.last().split('/');
+
+    out_mod = m_fa.length() > 0 ? m_fa.first() : QString();
+
+    xrefCApp * app = code_get_app_by_module_name(m_fa.first());
+    out_app = app ? app->m_name : QString();
+
+    out_fun = f_a.length() > 0 ? f_a.first() : QString();
+    return true;
+}
+
+xrefCApp *xrefGraph::code_get_app_by_module_name(const QString &mod_name)
+{
+    xrefCMod * mod = code_get_mod(mod_name);
+    if (!mod) return nullptr;
+    return mod->m_app;
+}
+
 void xrefGraph::load_source_nodes(const QString &fn)
 {
     QFile file(fn);
@@ -99,51 +242,9 @@ void xrefGraph::load_source_nodes(const QString &fn)
         auto jdoc = QJsonDocument::fromJson(bytes);
         auto jroot = jdoc.object();
 
-        //-------------------------------------------------
-        // Load module caller/callee dependencies list
-        //-------------------------------------------------
-        // input -> {connections: {mod1: ['mod2', 'mod3']}}
-        auto connections = jroot.value("connections").toObject();
-        for (auto n1iter = connections.begin(); n1iter != connections.end(); ++n1iter)
-        {
-            auto node1_name = n1iter.key();
-            auto src_node = new xrefSourceNode();
-            src_node->m_name = node1_name;
-
-            auto value_list = n1iter.value().toArray();
-            for (auto n2iter = value_list.begin(); n2iter != value_list.end(); ++n2iter)
-            {
-                auto callee_name = (* n2iter).toString();
-                src_node->m_callees.insert(callee_name);
-            } // for callee list
-
-            m_source_nodes.insert(node1_name, src_node);
-        } // for json keys
-
-        //-------------------------------------------------
-        // Load application list and modules belonging to apps
-        //-------------------------------------------------
-        // input -> {applications: {app1: ['mod1', 'mod2']}}
-        auto applications = jroot.value("applications").toObject();
-        for (auto aiter = applications.begin(); aiter != applications.end(); ++aiter)
-        {
-            auto app_name = aiter.key();
-            auto modules = aiter.value().toArray();
-            for (auto m_iter = modules.begin(); m_iter != modules.end(); ++m_iter)
-            {
-                auto mod_name = (* m_iter).toString();
-                if (! m_app_modules.contains(app_name)) {
-                    m_app_modules.insert(app_name, QList<QString>());
-                }
-                m_app_modules[app_name].append(mod_name);
-
-                // also add app name to module node
-                if (m_source_nodes.contains(mod_name)) {
-                    auto node = m_source_nodes.value(mod_name);
-                    node->m_app_name = app_name;
-                }
-            } // for module list
-        }
+        load_mod_calls(jroot);
+        load_apps(jroot);
+        load_fun_calls(jroot);
     } // if file
 }
 
