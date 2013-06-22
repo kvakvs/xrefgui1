@@ -30,20 +30,23 @@ public:
 
 public:
     xrefSourceNode * m_src_node = nullptr;
+    /// Node name and displayed text
     QString m_name;
+    /// Group or app name node belongs to
     QString m_app_name;
 
-    struct {
-        bool show = true;
-        bool edges_out = true;
-        bool edges_in = false;
-    } m_editor_flags;
+//    struct {
+//        bool show = true;
+//        bool edges_out = true;
+//        bool edges_in = false;
+//    } m_editor_flags;
 
     QPointF m_position;
     QSizeF  m_scene_size;
-    bool m_pinned; // do not move node when changing layout
-    bool m_layout_use_out_edges = false;
-    bool m_layout_use_in_edges = false;
+//    /// do not move node when changing layout
+//    bool m_pinned;
+//    bool m_layout_use_out_edges = false;
+//    bool m_layout_use_in_edges = false;
 //    bool m_show_out_edges = false;
 //    bool m_show_in_edges = false;
 };

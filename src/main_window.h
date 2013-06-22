@@ -7,10 +7,11 @@
 #include <QString>
 #include <QSettings>
 #include <QGraphicsScene>
-#include <QGraphicsView>
+//#include <QGraphicsView>
 
 #include "xref_node.h"
 #include "xref_graph.h"
+#include "xref_view.h"
 
 namespace Ui {
 class MainWindow;
@@ -58,7 +59,7 @@ public:
     QGraphicsScene * m_scene = nullptr;
 
     /// Display component for scene. Renders scene contents
-    QGraphicsView * m_scene_view = nullptr;
+    xrefView * m_scene_view = nullptr;
 
 private slots:
     void on_actionDot_triggered();
@@ -87,6 +88,9 @@ private:
     QtTreePropertyBrowser * m_property_editor;
 
 private:
+    void help_show_page(const QString & page);
+    void construct_scene_view();
+
     /// Reads input JSON into source nodes, source nodes must remain read-only after
     /// they are loaded
     void load_source_nodes(const QString & fn);

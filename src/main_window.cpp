@@ -1,5 +1,6 @@
 #include <QTransform>
 #include <QMessageBox>
+#include <QTextDocument>
 
 #include "qtvariantproperty.h"
 #include "qttreepropertybrowser.h"
@@ -23,11 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_singleton = this;
     ui->setupUi(this);
 
-    // scene and sceneview
-    m_scene = new QGraphicsScene();
-    m_scene_view = new QGraphicsView(m_scene, this);
-    m_scene_view->setRenderHint(QPainter::Antialiasing, false);
-    setCentralWidget(m_scene_view);
+    construct_scene_view();
 
     // load JSON data and populate view
     m_xrefgraph.load_source_nodes("input.json");
@@ -49,7 +46,31 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_variant_manager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
             this, SLOT(on_property_value_changed(QtProperty *, const QVariant &)));
 
+    // Help tab/floating
+    tabifyDockWidget(ui->dockWidget0, ui->dockWidget);
+    help_show_page("index");
+
     showMaximized();
+}
+
+void MainWindow::construct_scene_view()
+{
+    // scene and sceneview
+    m_scene = new QGraphicsScene();
+    m_scene_view = new xrefView(m_scene, this);
+    m_scene_view->setRenderHint(QPainter::Antialiasing, false);
+    // Moving mouse with left button down starts multiselect
+    m_scene_view->setDragMode(QGraphicsView::RubberBandDrag);
+    // Resize view using mouse position as fixed center point
+    m_scene_view->setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+    setCentralWidget(m_scene_view);
+}
+
+void MainWindow::help_show_page(const QString & page)
+{
+    QString path = QApplication::applicationDirPath() + "/doc/";
+    ui->textBrowser->setSearchPaths(QStringList() << "doc" << "doc/images");
+    ui->textBrowser->setSource(page + ".html");
 }
 
 MainWindow::~MainWindow()
@@ -70,6 +91,7 @@ void MainWindow::selection_toggle(xrefEditableNode * node)
     m_name_to_property.clear();
     m_property_to_name.clear();
 
+    /*
     if (node) {
         QtVariantProperty * property;
 
@@ -81,6 +103,7 @@ void MainWindow::selection_toggle(xrefEditableNode * node)
         property->setValue(QVariant(node->m_editor_flags.edges_out));
         add_property(property, QLatin1String("draw_out_edges"));
     }
+    */
 }
 
 void MainWindow::save_as_image(const QString &filename)
@@ -121,8 +144,8 @@ void MainWindow::add_property(QtVariantProperty *property, const QString &id)
 
 void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
 {
+    /*
     auto prop_name = m_property_to_name[p];
-
     foreach(xrefEditableNode * sel, m_xrefgraph.m_selected_nodes) {
         if (prop_name == "draw_in_edges") {
             sel->m_editor_flags.edges_in = v.toBool();
@@ -132,6 +155,7 @@ void MainWindow::on_property_value_changed(QtProperty *p, const QVariant &v)
         }
     }
     m_scene_view->update();
+*/
 }
 
 

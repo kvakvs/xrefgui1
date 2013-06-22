@@ -30,6 +30,8 @@ void xrefSceneNode::paint(QPainter *painter,
                              const QStyleOptionGraphicsItem *option,
                              QWidget *widget)
 {
+    QGraphicsRectItem::paint(painter, option, widget);
+
     auto bb = rect();
     QFontMetrics font_metrics = painter->fontMetrics();
     auto font_height = font_metrics.height();
