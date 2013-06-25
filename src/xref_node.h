@@ -51,23 +51,27 @@ public:
 //    bool m_show_in_edges = false;
 };
 
-class xrefSceneNode: public QGraphicsRectItem
+static const int xrefNodeType_Module   = 100000;
+static const int xrefNodeType_Function = 100001;
+
+class xrefSceneNode_Module: public QGraphicsRectItem
 {
 public:
-    xrefSceneNode(xrefEditableNode * node);
-    virtual ~xrefSceneNode() {}
+    xrefSceneNode_Module(xrefEditableNode * node);
+    virtual ~xrefSceneNode_Module() {}
 
     QPointF get_attach_point_for_edge();
     void set_rect_update_edges(const QRectF &rect);
 
     /// Searches linked edges for specific direction
-    bool has_edge(xrefSceneNode * nfrom, xrefSceneNode * nto);
+    bool has_edge(xrefSceneNode_Module * nfrom, xrefSceneNode_Module * nto);
 
 public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                        QWidget *widget);
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual int type() const { return xrefNodeType_Module; }
 
 public:
     QString m_app_name;

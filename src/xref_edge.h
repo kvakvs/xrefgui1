@@ -6,13 +6,14 @@
 #include <QPoint>
 #include <QGraphicsLineItem>
 
-class xrefSceneNode;
+class xrefSceneNode_Module;
+static const int xrefNodeType_Call     = 100002;
 
 /// Describes a connecting line between two nodes on scene
 class xrefSceneEdge : public QGraphicsLineItem
 {
 public:
-    xrefSceneEdge(xrefSceneNode * src, xrefSceneNode * dst);
+    xrefSceneEdge(xrefSceneNode_Module * src, xrefSceneNode_Module * dst);
     virtual ~xrefSceneEdge() {}
 
     void update_scene_edge_coords();
@@ -20,10 +21,11 @@ public:
 public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                        QWidget *widget);
+    virtual int type() const { return xrefNodeType_Call; }
 
 public:
-    xrefSceneNode * m_src = nullptr;
-    xrefSceneNode * m_dst = nullptr;
+    xrefSceneNode_Module * m_src = nullptr;
+    xrefSceneNode_Module * m_dst = nullptr;
 };
 
 #endif // XREF_EDGE_H

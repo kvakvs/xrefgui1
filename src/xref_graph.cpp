@@ -68,7 +68,7 @@ void xrefGraph::View::clear()
     m_editable_nodes.clear();
 }
 
-void xrefGraph::add_edges_to_scene(xrefSceneNode * caller_node)
+void xrefGraph::add_edges_to_scene(xrefSceneNode_Module * caller_node)
 {
     auto main = MainWindow::m_singleton;
 
@@ -77,7 +77,7 @@ void xrefGraph::add_edges_to_scene(xrefSceneNode * caller_node)
         // if scene contains no callee node
         if (! m_scene_nodes.contains(callee)) { continue; }
 
-        xrefSceneNode * callee_node = m_scene_nodes.value(callee);
+        xrefSceneNode_Module * callee_node = m_scene_nodes.value(callee);
         Q_ASSERT(callee_node != nullptr);
 
         // if edge exists
@@ -280,7 +280,7 @@ void xrefGraph::recreate_scene_from_editable(const QSet<QString> & node_names)
         //if (m_scene_nodes.contains(ed_node->m_name)) { continue; }
 
         // Make an editable node (which is also a scene item)
-        auto scene_node = new xrefSceneNode(ed_node);
+        auto scene_node = new xrefSceneNode_Module(ed_node);
 
         auto & pos = ed_node->m_position;
         auto & sz = ed_node->m_scene_size;
@@ -308,7 +308,7 @@ void xrefGraph::recreate_scene_from_editable(const QSet<QString> & node_names)
         // if scene does not contains caller
         //if (! m_scene_nodes.contains(caller_src_name)) { continue; }
 
-        xrefSceneNode * caller_node = m_scene_nodes.value(caller_src_name);
+        xrefSceneNode_Module * caller_node = m_scene_nodes.value(caller_src_name);
         Q_ASSERT(caller_node != nullptr);
 
         add_edges_to_scene(caller_node);
@@ -328,25 +328,25 @@ int _agset(void * object, const QString & attr, const QString & value)
 
 void xrefGraph::apply_layout(const char *gv_layout_method)
 {
-    QSet<xrefSceneNode *> s_nodes;
+    QSet<xrefSceneNode_Module *> s_nodes;
     foreach(auto n, m_scene_nodes.values()) {
         if (n) s_nodes.insert(n);
     }
     apply_layout(s_nodes, gv_layout_method);
 }
 
-void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const char *gv_layout_method)
+void xrefGraph::apply_layout(const QSet<xrefSceneNode_Module *> &nodes_affected, const char *gv_layout_method)
 {
     //auto graph = new xrefGraphvizGraph();
     GVC_t * gvc = gvContext();
     Agraph_t * graph = agopen(const_cast<char *>("G"), AGDIGRAPH);
 
-    QMap<xrefSceneNode *, Agnode_t *> snode_to_agnode;
-    QMap<Agnode_t *, xrefSceneNode *> agnode_to_snode;
+    QMap<xrefSceneNode_Module *, Agnode_t *> snode_to_agnode;
+    QMap<Agnode_t *, xrefSceneNode_Module *> agnode_to_snode;
     QMap<QString, Agraph_t *> subgraphs;
 
     // copy editable nodes to graphviz nodes
-    foreach(xrefSceneNode * my_node, nodes_affected) {
+    foreach(xrefSceneNode_Module * my_node, nodes_affected) {
         // get or make subgraph
         if (! subgraphs.contains(my_node->m_app_name)) {
             subgraphs.insert(my_node->m_app_name,
@@ -378,7 +378,7 @@ void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const 
     }
 
     // copy editable directed edges (they can overlap in opposite directions)
-    foreach(xrefSceneNode * my_node, nodes_affected) {
+    foreach(xrefSceneNode_Module * my_node, nodes_affected) {
         Agnode_t * gv_from = snode_to_agnode.value(my_node);
 
         foreach(xrefSceneEdge * my_edge, my_node->m_linked_edges) {
@@ -394,7 +394,7 @@ void xrefGraph::apply_layout(const QSet<xrefSceneNode *> &nodes_affected, const 
     for (Agnode_t * agnode = agfstnode(graph); agnode != nullptr; agnode = agnxtnode(graph, agnode))
     {
         QPointF pos(agnode->u.coord.x, agnode->u.coord.y);
-        xrefSceneNode * my_node = agnode_to_snode.value(agnode);
+        xrefSceneNode_Module * my_node = agnode_to_snode.value(agnode);
 
         auto rc = my_node->rect();
         QRectF new_rc(pos.x() - rc.width() * 0.5,
@@ -425,7 +425,7 @@ void xrefGraph::transform(const QTransform &tr)
     foreach(xrefEditableNode *ed_node, m_view->m_editable_nodes) {
         Q_ASSERT(ed_node != nullptr);
         if (m_scene_nodes.contains(ed_node->m_name)) {
-            xrefSceneNode * scene_node = m_scene_nodes.value(ed_node->m_name);
+            xrefSceneNode_Module * scene_node = m_scene_nodes.value(ed_node->m_name);
             auto rc = scene_node->rect();
 
             auto diff = tr.map(rc.center()) - rc.center();
@@ -437,14 +437,14 @@ void xrefGraph::transform(const QTransform &tr)
 
 void xrefGraph::save_scene_to_editable()
 {
-    foreach(xrefSceneNode * s_node, m_scene_nodes) {
+    foreach(xrefSceneNode_Module * s_node, m_scene_nodes) {
         auto ed_node = s_node->m_node;
         ed_node->m_position = s_node->rect().center();
         ed_node->m_scene_size = s_node->rect().size();
     }
 }
 
-QBrush xrefGraph::choose_brush(xrefEditableNode *ed_node, xrefSceneNode *scene_node)
+QBrush xrefGraph::choose_brush(xrefEditableNode *ed_node, xrefSceneNode_Module *scene_node)
 {
     quint16 sum = qChecksum((const char *)ed_node->m_app_name.data(),
                             ed_node->m_app_name.length());

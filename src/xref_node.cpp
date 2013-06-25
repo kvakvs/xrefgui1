@@ -15,18 +15,18 @@ xrefEditableNode::xrefEditableNode(const QString &name)
     m_position = QPointF(rand() % 1300, rand() % 700);
 }
 
-xrefSceneNode::xrefSceneNode(xrefEditableNode * node)
+xrefSceneNode_Module::xrefSceneNode_Module(xrefEditableNode * node)
     : QGraphicsRectItem(), m_node(node),
       m_app_name(node->m_app_name), m_name(node->m_name)
 {
 }
 
-QPointF xrefSceneNode::get_attach_point_for_edge()
+QPointF xrefSceneNode_Module::get_attach_point_for_edge()
 {
     return sceneBoundingRect().center();
 }
 
-void xrefSceneNode::paint(QPainter *painter,
+void xrefSceneNode_Module::paint(QPainter *painter,
                              const QStyleOptionGraphicsItem *option,
                              QWidget *widget)
 {
@@ -61,7 +61,7 @@ void xrefSceneNode::paint(QPainter *painter,
                       m_node->m_name);
 }
 
-void xrefSceneNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void xrefSceneNode_Module::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsRectItem::mouseMoveEvent(event);
 
@@ -70,7 +70,7 @@ void xrefSceneNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void xrefSceneNode::set_rect_update_edges(const QRectF &rect)
+void xrefSceneNode_Module::set_rect_update_edges(const QRectF &rect)
 {
     setRect(rect);
     foreach(xrefSceneEdge * e, m_linked_edges) {
@@ -78,7 +78,7 @@ void xrefSceneNode::set_rect_update_edges(const QRectF &rect)
     }
 }
 
-bool xrefSceneNode::has_edge(xrefSceneNode *nfrom, xrefSceneNode *nto)
+bool xrefSceneNode_Module::has_edge(xrefSceneNode_Module *nfrom, xrefSceneNode_Module *nto)
 {
     foreach(xrefSceneEdge * e, m_linked_edges) {
         if (e->m_src == nfrom && e->m_dst == nto) { return true; }
@@ -87,7 +87,7 @@ bool xrefSceneNode::has_edge(xrefSceneNode *nfrom, xrefSceneNode *nto)
     return false;
 }
 
-QVariant xrefSceneNode::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+QVariant xrefSceneNode_Module::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if (change == QGraphicsItem::ItemSelectedChange)
     {

@@ -7,7 +7,7 @@
 #include <QTransform>
 #include <QBrush>
 
-class xrefSceneNode;
+class xrefSceneNode_Module;
 class xrefSceneEdge;
 class xrefEditableNode;
 class xrefSourceNode;
@@ -28,7 +28,7 @@ public:
     const QString & view_get_current();
     //--------------------------
 
-    void add_edges_to_scene(xrefSceneNode *caller_node);
+    void add_edges_to_scene(xrefSceneNode_Module *caller_node);
 
     void load_source_nodes(const QString &fn);
 
@@ -42,7 +42,7 @@ public:
     void apply_layout(const char * gv_layout_method);
 
     /// Forms a graphviz memory structure and calls graphviz layout function for given subset of nodes
-    void apply_layout(const QSet<xrefSceneNode *> & nodes_affected,
+    void apply_layout(const QSet<xrefSceneNode_Module *> & nodes_affected,
                       const char * gv_layout_method);
 
     void clear_editable();
@@ -66,7 +66,7 @@ private:
 
     /// Selects item background color to distinguish per application
     static QBrush choose_brush(xrefEditableNode * ed_node,
-                               xrefSceneNode * scene_node);
+                               xrefSceneNode_Module * scene_node);
 
 public:
     QMap<QString, QList<QString>> m_app_modules;
@@ -75,7 +75,7 @@ public:
     /// m_editable_nodes without sizes, positions and other attributes
     QMap<QString, xrefSourceNode *> m_source_nodes;
 
-    QMap<QString, xrefSceneNode *> m_scene_nodes;
+    QMap<QString, xrefSceneNode_Module *> m_scene_nodes;
 
     /// Selection on screen
     QSet<xrefEditableNode *> m_selected_nodes;

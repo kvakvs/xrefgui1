@@ -2,7 +2,7 @@
 #include "xref_node.h"
 #include "render_things.h"
 
-xrefSceneEdge::xrefSceneEdge(xrefSceneNode *src, xrefSceneNode *dst)
+xrefSceneEdge::xrefSceneEdge(xrefSceneNode_Module *src, xrefSceneNode_Module *dst)
     : QGraphicsLineItem(), m_src(src), m_dst(dst)
 {
     update_scene_edge_coords();

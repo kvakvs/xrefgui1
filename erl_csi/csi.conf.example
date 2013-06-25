@@ -1,0 +1,5 @@
+{root_dir, "/home/username/project"}.
+
+{applications, [
+        app1, app2, app3
+    ]}.
