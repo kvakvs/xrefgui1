@@ -1,8 +1,16 @@
+## intellij idea project files
+.idea
+.idea/*
+*.iml
+
+## qt creator project files
 *.autosave
 *.o
 build-*
 *.user.*
 *.user
 *~
+
+## archive directory for helper libs
 distrib/*
 distrib
