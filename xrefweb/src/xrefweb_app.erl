@@ -30,38 +30,31 @@ start() ->
 
 start(_StartType, _StartArgs) ->
   start_web(),
-  mcweb_sup:start_link().
+  xrefweb_sup:start_link().
 
 stop(_State) ->
   ok.
 
-%% @doc TODO: move this out of macaba_app
 start_web() ->
   ok = xrefweb:ensure_started(crypto),
   ok = xrefweb:ensure_started(ranch),
   ok = xrefweb:ensure_started(cowboy),
 
-  Site = macaba_board:get_site_config(),
-  Disp = cowboy_compile_dispatch(Site#mcb_site_config.offline),
+  Disp = cowboy_compile_dispatch(),
   cowboy_start_listener(Disp).
 
 %%%-----------------------------------------------------------------------------
 cowboy_start_listener(Disp) ->
-  {ok, HttpPort} = macaba_conf:get_or_fatal([<<"html">>, <<"listen_port">>]),
-  {ok, Listeners} = macaba_conf:get_or_fatal([<<"html">>, <<"listeners">>]),
+  {ok, HttpPort} = xrefweb_conf:get_or_fatal([<<"html">>, <<"listen_port">>]),
+  {ok, Listeners} = xrefweb_conf:get_or_fatal([<<"html">>, <<"listeners">>]),
   cowboy:start_http(?XREFWEB_LISTENER, Listeners,
                     [{port, HttpPort}, {ip, {0,0,0,0}}],
                     [{env, [{dispatch, Disp}]}]
                    ).
 
 %%%-----------------------------------------------------------------------------
-change_offline_mode(Offline) ->
-  Disp = cowboy_compile_dispatch(Offline),
-  cowboy:set_env(?XREFWEB_LISTENER, dispatch, Disp).
-
-%%%-----------------------------------------------------------------------------
-cowboy_compile_dispatch(Offline) ->
-  Priv = code:priv_dir(mcweb),
+cowboy_compile_dispatch() ->
+  Priv = code:priv_dir(xrefweb),
   CSSPath = filename:join([Priv, "css"]),
   JSPath  = filename:join([Priv, "js"]),
   ImgPath = filename:join([Priv, "img"]),
@@ -79,56 +72,19 @@ cowboy_compile_dispatch(Offline) ->
   St3 = {"/img/[...]", SMod, [{directory, ImgPath}, Mime]},
 
   %%--- anonymous/public resources ---
-  HMod = mcweb_html_public,
+  HMod = xrefweb_html_public,
   Index    = {"/", HMod, [index]},
-  TNew     = {"/board/:mcb_board/thread/new", HMod, [thread_new]},
-  TManage  = {"/board/:mcb_board/thread/:mcb_thread/manage", HMod,
-              [thread_manage]},
-  TShow    = {"/board/:mcb_board/thread/:mcb_thread", HMod, [thread]},
-  TRepl    = {"/board/:mcb_board/post/new", HMod, [post_new]},
-  BShow1   = {"/board/:mcb_board/page/:mcb_page", HMod, [board]},
-  BShow2   = {"/board/:mcb_board", HMod, [board]},
-  AttThumb = {"/attach/:mcb_attach/thumb", HMod, [attach_thumb]},
-  Attach   = {"/attach/:mcb_attach", HMod, [attach]},
-  UPvw     = {"/util/preview", HMod, [util_preview]},
 
-  %%--- admin resources ---
-  AMod = mcweb_html_admin,
-  ASiteB  = {"/admin/site/boards", AMod, [admin_site_boards]},
-  ASiteO  = {"/admin/site/offline", AMod, [admin_site_offline]},
-  ASite   = {"/admin/site", AMod, [admin_site]},
-  ALogin  = {"/admin/login", AMod, [admin_login]},
-  ALogout = {"/admin/logout", AMod, [admin_logout]},
-  ALanding= {"/admin", AMod, [admin]},
-
-  case Offline of
-    false ->
-      %% board is online, bring everything up!
-      BoardResources = [ AttThumb, Attach ]
-        ++ rest_routing_table()
-        ++ [ TNew, TManage, TShow, TRepl
-           , BShow1, BShow2
-           , UPvw, Index
-           ],
-      CatchAll = [];
-    true ->
-      %% board is offline, shut everything down except admin pages!
-      BoardResources = [],
-      CatchAll = [{'_', AMod, [offline]}]
-  end,
+  {Resources, CatchAll} = %% board is online, bring everything up!
+                          { json_api_routing_table() ++ [Index]
+                          , []},
   cowboy_router:compile(
     [ {'_',
        %% static always works in online and offline
-       [ St1, St2, St3 ]
-       ++ BoardResources
-       ++ [ ASiteB, ASiteO, ASite, ALogin, ALogout, ALanding ]
-       ++ CatchAll
+       [ St1, St2, St3 ] ++ Resources ++ CatchAll
       } ]).
 
 %%%-----------------------------------------------------------------------------
 %% @doc Build routing table piece for REST resources
-rest_routing_table() ->
-  [ {"/rest/board/:mcb_board/thread/:mcb_thread", mcweb_rest_thread, []}
-  , {"/rest/board/:mcb_board/post/:mcb_post", mcweb_rest_post, []}
-  , {"/rest/post/preview", mcweb_rest_post, []}
-  ].
+json_api_routing_table() ->
+  [ {"/json_dump", xrefweb_html_public, [json_dump]} ].
