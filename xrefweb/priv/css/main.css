@@ -1,8 +1,10 @@
-circle {
+.link {
+  fill: none;
+  stroke: #000;
   stroke-width: 1.5px;
 }
 
-line {
+.node {
   stroke: #999;
 }
 
