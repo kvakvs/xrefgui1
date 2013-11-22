@@ -19,6 +19,7 @@ var forceLayout = d3.layout.force()
     .nodes(nodeData)
     .links(linkData)
     .size([width, height])
+    .linkDistance(30)
     .start();          // start on create
 
 var linkBindingSelection,
@@ -34,7 +35,8 @@ function update() {
 	    .data(nodeData)
 		.enter().append("circle")
 	    	.attr("r", 5)
-	    	.attr("class", "node");
+	    	.attr("class", "node")
+			.attr("id", function(node) { return "mod_svg_" + node.name; });
 
 	forceLayout.start();
 }
@@ -51,10 +53,64 @@ forceLayout.on("tick", function() {
       .attr("cy", function(d) { return d.y; });
 });
 
-nody = {};
-nodo = {};
-linky = { "source":nody, "target":nodo};
-nodeData.push(nody);
-nodeData.push(nodo);
-linkData.push(linky);
 update();
+
+show = function(modName) {
+	if (nodeMap[modName] !== undefined && !(nodeMap[modName].visible)) {
+		nodeData.push(nodeMap[modName]);
+		update();
+		return true;
+	} else {
+		return false;
+	}
+};
+
+newNode = function(name) {
+	return {
+		"visible" : false,
+		"name" : name
+	};
+};
+
+var moduleDeps = [
+	{"source": "some_page",
+	 "target": "some_biz"},
+	{"source": "other_page",
+	 "target": "some_biz"},
+	{"source": "other_page",
+	 "target": "other_biz"},
+	{"source": "some_page",
+	 "target": "some_db"},
+	{"source": "some_biz",
+	 "target": "some_db"},
+	{"source": "other_biz",
+	 "target": "some_db"}
+];
+
+var nodeMap = {};
+
+for (var ii = 0; ii < moduleDeps.length; ii++) {
+	var sourceName = moduleDeps[ii].source;
+	var targetName = moduleDeps[ii].target;
+	
+	if (nodeMap[sourceName] === undefined)
+		nodeMap[sourceName] = newNode(sourceName);
+	if (nodeMap[targetName] === undefined)
+		nodeMap[targetName] = newNode(targetName);
+	
+	
+}
+
+
+var startingMod = prompt("Starting mod", "some_page");
+show(startingMod);
+
+
+
+//nody = {};
+//nodo = {};
+//linky = { "source":nody, "target":nodo};
+//nodeData.push(nody);
+//nodeData.push(nodo);
+//linkData.push(linky);
+//update();
