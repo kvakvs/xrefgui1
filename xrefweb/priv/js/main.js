@@ -19,7 +19,7 @@ var forceLayout = d3.layout.force()
     .nodes(nodeData)
     .links(linkData)
     .size([width, height])
-    .linkDistance(30)
+    .linkDistance(80)
     .start();          // start on create
 
 var linkBindingSelection = svg.selectAll(".link"),
@@ -33,12 +33,19 @@ function update() {
 			.attr("class", "link");
 	
 	nodeBindingSelection = nodeBindingSelection.data(nodeData);
-	nodeBindingSelection.enter()
-		.append("circle")
-	    	.attr("r", 5)
+	var newNode = nodeBindingSelection.enter()
+		.append("g")
 	    	.attr("class", "node")
 			.on("click", expandCallees);
 	
+	newNode.append("ellipse")
+		.attr("rx", 30)
+		.attr("ry", 10)
+		.style("fill", "beige");
+
+	var newNodeLabel = newNode.append("text")
+		.text(function(node) { return node.name; });
+		
 	forceLayout.start();
 }
 
@@ -49,9 +56,7 @@ forceLayout.on("tick", function() {
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
-  nodeBindingSelection
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
+  nodeBindingSelection.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 });
 
 update();
