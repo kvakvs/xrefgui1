@@ -36,7 +36,8 @@ function update() {
 		.enter().append("circle")
 	    	.attr("r", 5)
 	    	.attr("class", "node")
-			.attr("id", function(node) { return "mod_svg_" + node.name; });
+			.attr("id", function(node) { return "mod_svg_" + node.name; })
+			.on("click", function(node) { expand(node); });
 
 	forceLayout.start();
 }
@@ -55,23 +56,6 @@ forceLayout.on("tick", function() {
 
 update();
 
-show = function(modName) {
-	if (nodeMap[modName] !== undefined && !(nodeMap[modName].visible)) {
-		nodeData.push(nodeMap[modName]);
-		update();
-		return true;
-	} else {
-		return false;
-	}
-};
-
-newNode = function(name) {
-	return {
-		"visible" : false,
-		"name" : name
-	};
-};
-
 var moduleDeps = [
 	{"source": "some_page",
 	 "target": "some_biz"},
@@ -89,21 +73,66 @@ var moduleDeps = [
 
 var nodeMap = {};
 
+newNode = function(name) {
+	return {
+		"visible" : false,
+		"name" : name,
+		"callees" : [],
+		"callers" : [],
+	};
+};
+
 for (var ii = 0; ii < moduleDeps.length; ii++) {
 	var sourceName = moduleDeps[ii].source;
 	var targetName = moduleDeps[ii].target;
+	var source, target;
 	
 	if (nodeMap[sourceName] === undefined)
-		nodeMap[sourceName] = newNode(sourceName);
+		source = nodeMap[sourceName] = newNode(sourceName);
+	else
+		source = nodeMap[sourceName];
 	if (nodeMap[targetName] === undefined)
-		nodeMap[targetName] = newNode(targetName);
+		target = nodeMap[targetName] = newNode(targetName);
+	else
+		target = nodeMap[sourceName];
 	
-	
+	source.callees.push(target);
+	target.callers.push(source);
 }
 
+function modByName(modName) {
+	if (nodeMap[modName] !== undefined) {
+		return nodeMap[modName];
+	} else {
+		return false;
+	}
+};
 
-var startingMod = prompt("Starting mod", "some_page");
-show(startingMod);
+function show(mod) {
+	if (! mod.visible) {
+		nodeData.push(mod);
+		mod.visible = true;
+		//update();
+		return true;
+	} else {
+		return false;
+	}
+};
+
+function expand(mod) {
+	mod.callees.forEach(function(callee) {
+		show(callee);
+	});
+	update();
+};
+
+var modName = prompt("Starting mod", "some_page");
+
+var mod;
+if (mod = modByName(modName)) {
+	show(mod);
+	update();
+}
 
 
 
