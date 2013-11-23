@@ -22,23 +22,23 @@ var forceLayout = d3.layout.force()
     .linkDistance(30)
     .start();          // start on create
 
-var linkBindingSelection,
-    nodeBindingSelection;
+var linkBindingSelection = svg.selectAll(".link"),
+    nodeBindingSelection = svg.selectAll(".node");
 
 function update() {
-	linkBindingSelection = svg.selectAll(".link")
-	    .data(linkData)
-		.enter().append("line")
+	linkBindingSelection = linkBindingSelection.data(linkData);
+	
+	linkBindingSelection.enter()
+		.append("line")
 			.attr("class", "link");
 	
-	nodeBindingSelection = svg.selectAll(".node")
-	    .data(nodeData)
-		.enter().append("circle")
+	nodeBindingSelection = nodeBindingSelection.data(nodeData);
+	nodeBindingSelection.enter()
+		.append("circle")
 	    	.attr("r", 5)
 	    	.attr("class", "node")
-			.attr("id", function(node) { return "mod_svg_" + node.name; })
-			.on("click", function(node) { expand(node); });
-
+			.on("click", expandCallees);
+	
 	forceLayout.start();
 }
 
@@ -57,48 +57,58 @@ forceLayout.on("tick", function() {
 update();
 
 var moduleDeps = [
-	{"source": "some_page",
-	 "target": "some_biz"},
-	{"source": "other_page",
-	 "target": "some_biz"},
-	{"source": "other_page",
-	 "target": "other_biz"},
-	{"source": "some_page",
-	 "target": "some_db"},
-	{"source": "some_biz",
-	 "target": "some_db"},
-	{"source": "other_biz",
-	 "target": "some_db"}
+	{"caller": "some_page",
+	 "callee": "some_biz"},
+	{"caller": "other_page",
+	 "callee": "some_biz"},
+	{"caller": "other_page",
+	 "callee": "other_biz"},
+	{"caller": "some_page",
+	 "callee": "some_db"},
+	{"caller": "some_biz",
+	 "callee": "some_db"},
+	{"caller": "other_biz",
+	 "callee": "some_db"},
+	{"caller": "some_biz",
+	 "callee": "other_db"},
 ];
 
 var nodeMap = {};
+var linkMap = {};
 
-newNode = function(name) {
-	return {
+moduleDeps.forEach(function (depRel) {
+	var sourceName = depRel.caller;
+	var targetName = depRel.callee;
+	var source, target;
+	
+	if (nodeMap[sourceName] === undefined)
+		source = newNode(sourceName);
+	else
+		source = nodeMap[sourceName];
+
+	if (nodeMap[targetName] === undefined)
+		target = newNode(targetName);
+	else
+		target = nodeMap[targetName];
+
+	source.callees.push(target);
+	target.callers.push(source);
+
+	if (linkMap[linkKey(source, target)] === undefined) {
+		newLink(source, target);
+	}
+});
+
+function newNode(name) {
+	var node = {
 		"visible" : false,
 		"name" : name,
 		"callees" : [],
 		"callers" : [],
 	};
+	nodeMap[name] = node;
+	return node;
 };
-
-for (var ii = 0; ii < moduleDeps.length; ii++) {
-	var sourceName = moduleDeps[ii].source;
-	var targetName = moduleDeps[ii].target;
-	var source, target;
-	
-	if (nodeMap[sourceName] === undefined)
-		source = nodeMap[sourceName] = newNode(sourceName);
-	else
-		source = nodeMap[sourceName];
-	if (nodeMap[targetName] === undefined)
-		target = nodeMap[targetName] = newNode(targetName);
-	else
-		target = nodeMap[sourceName];
-	
-	source.callees.push(target);
-	target.callers.push(source);
-}
 
 function modByName(modName) {
 	if (nodeMap[modName] !== undefined) {
@@ -108,20 +118,53 @@ function modByName(modName) {
 	}
 };
 
-function show(mod) {
+function newLink(source, target) {
+	var link = {
+		"source" : source,
+		"target" : target,
+		"visible" : false,
+	};
+	linkMap[linkKey(source, target)] = link;
+	return link;
+}
+
+function linkKey(source, target) {
+	return source.name + "_" + target.name;
+}
+
+function linkByMods(source, target) {
+	var key = linkKey(source, target);
+	if (linkMap[key] !== undefined)
+		return linkMap[key];
+	else
+		return false;
+}
+
+function showMod(mod) {
 	if (! mod.visible) {
 		nodeData.push(mod);
 		mod.visible = true;
-		//update();
 		return true;
 	} else {
 		return false;
 	}
 };
 
-function expand(mod) {
+function showLink(source, target) {
+	var link = linkByMods(source, target);
+	if (! link.visible) {
+		linkData.push(link);
+		link.visible = true;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function expandCallees(mod) {
 	mod.callees.forEach(function(callee) {
-		show(callee);
+		showMod(callee);
+		showLink(mod, callee);
 	});
 	update();
 };
@@ -130,16 +173,6 @@ var modName = prompt("Starting mod", "some_page");
 
 var mod;
 if (mod = modByName(modName)) {
-	show(mod);
+	showMod(mod);
 	update();
 }
-
-
-
-//nody = {};
-//nodo = {};
-//linky = { "source":nody, "target":nodo};
-//nodeData.push(nody);
-//nodeData.push(nodo);
-//linkData.push(linky);
-//update();
