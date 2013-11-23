@@ -20,6 +20,7 @@ var forceLayout = d3.layout.force()
     .links(linkData)
     .size([width, height])
     .linkDistance(80)
+    .charge([-100])
     .start();          // start on create
 
 var linkBindingSelection = svg.selectAll(".link"),
@@ -36,7 +37,8 @@ function update() {
 	var newNode = nodeBindingSelection.enter()
 		.append("g")
 	    	.attr("class", "node")
-			.on("click", expandCallees);
+			.on("click", expandCallees)
+			.call(forceLayout.drag);
 	
 	newNode.append("ellipse")
 		.attr("rx", 30)
