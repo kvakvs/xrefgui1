@@ -26,9 +26,11 @@ var forceLayout = d3.layout.force()
     .nodes(nodeData)
     .links(linkData)
     .size([width, height])
-    .linkDistance(50)
-    .linkStrength(0.5)
-    .charge([-200])
+    .linkDistance(function(link) {
+    	return 50+Math.abs(link.source.depth-link.target.depth)*20;
+    })
+    .linkStrength(0.8)
+    .charge([-300])
     .start();
 
 var linkBindingSelection = svg.selectAll(".link"),
@@ -64,8 +66,8 @@ forceLayout.on("tick", function(e) {
 	// Push sources up and targets down to form a weak tree.
 	var k = 6 * e.alpha;
 	linkData.forEach(function(d, i) {
-	    d.source.y -= k;
-	    d.target.y += k;
+	    d.source.y -= k*(Math.abs(d.source.depth-maxDepth/2));
+	    d.target.y += k*(Math.abs(d.target.depth-maxDepth/2));
 	});
     
 	linkBindingSelection
@@ -96,8 +98,8 @@ var moduleDeps = [
 	 "callee": "other_db"},
 	{"caller": "other_db",
 	 "callee": "other_page"},
-	//{"caller": "some_biz",
-	// "callee": "other_page"},
+	{"caller": "some_biz",
+	 "callee": "other_page"},
 ];
 
 
@@ -197,15 +199,6 @@ function expandCallees(mod) {
 	});
 	update();
 };
-
-var modName = prompt("Starting mod", "some_page");
-
-var mod;
-if (mod = modByName(modName)) {
-	showMod(mod);
-	update();
-}
-
 
 /*************************************************************
  * STRONGLY CONNECTED COMPONENTS
@@ -311,6 +304,21 @@ function deepenNode(vertex, depth) {
 		deepenNode(vertex, 0);
 	});
 //} while (changed);
+var maxDepth = 0;
 vertices.forEach(function(vertex) {
 	console.log(vertex.name, vertex.depth);
+	if (vertex.depth > maxDepth)
+		maxDepth = vertex.depth;
 });
+/*
+ * END calculating node depth
+ ********************************************************************/
+
+
+var modName = prompt("Starting mod", "some_page");
+
+var mod;
+if (mod = modByName(modName)) {
+	showMod(mod);
+	update();
+}
