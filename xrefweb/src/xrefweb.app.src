@@ -1,0 +1,13 @@
+%% -*- mode:erlang; -*-
+{application, xrefweb,
+ [
+  {description, "Web and REST frontend for XrefGUI project"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { xrefweb_app, []}},
+  {env, []}
+ ]}.
