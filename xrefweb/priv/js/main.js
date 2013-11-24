@@ -26,8 +26,9 @@ var forceLayout = d3.layout.force()
     .nodes(nodeData)
     .links(linkData)
     .size([width, height])
-    .linkDistance(100)
-    .charge([-150])
+    .linkDistance(50)
+    .linkStrength(0.5)
+    .charge([-200])
     .start();
 
 var linkBindingSelection = svg.selectAll(".link"),
@@ -59,14 +60,21 @@ function update() {
 	forceLayout.start();
 }
 
-forceLayout.on("tick", function() {
-  linkBindingSelection
-      .attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
+forceLayout.on("tick", function(e) {
+	// Push sources up and targets down to form a weak tree.
+	var k = 6 * e.alpha;
+	linkData.forEach(function(d, i) {
+	    d.source.y -= k;
+	    d.target.y += k;
+	});
+    
+	linkBindingSelection
+		.attr("x1", function(d) { return d.source.x; })
+		.attr("y1", function(d) { return d.source.y; })
+		.attr("x2", function(d) { return d.target.x; })
+		.attr("y2", function(d) { return d.target.y; });
 
-  nodeBindingSelection.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	nodeBindingSelection.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 });
 
 update();
@@ -86,10 +94,10 @@ var moduleDeps = [
 	 "callee": "some_db"},
 	{"caller": "some_biz",
 	 "callee": "other_db"},
-	{"caller": "other_db",
-	 "callee": "other_page"},
-	{"caller": "some_biz",
-	 "callee": "other_page"},
+	//{"caller": "other_db",
+	// "callee": "other_page"},
+	//{"caller": "some_biz",
+	// "callee": "other_page"},
 ];
 
 
@@ -150,7 +158,7 @@ function newLink(source, target) {
 }
 
 function linkKey(source, target) {
-	return source.name + "_" + target.name;
+	return source.name + "-->" + target.name;
 }
 
 function linkByMods(source, target) {
@@ -245,7 +253,6 @@ function traverse(v) {
 }
 
 Object.keys(nodeMap).forEach(function(nodeKey) {
-	console.log(nodeKey);
 	vertices.push(nodeMap[nodeKey]);
 });
 
@@ -255,7 +262,7 @@ vertices.forEach(function(vertex) {
 });
 
 components.forEach(function(component) {
-	console.log(component);
+	//console.log(component);
 });
 /*
  * END strongly connected components
@@ -267,3 +274,8 @@ components.forEach(function(component) {
  * Assign depth to each node.
  * Use relative depth to nudge nodes up/down as in http://jsfiddle.net/jbothma/Gvuz9/23/
  */
+
+componentDeps = {};
+components.forEach(function(component) {
+	
+});
