@@ -94,8 +94,8 @@ var moduleDeps = [
 	 "callee": "some_db"},
 	{"caller": "some_biz",
 	 "callee": "other_db"},
-	//{"caller": "other_db",
-	// "callee": "other_page"},
+	{"caller": "other_db",
+	 "callee": "other_page"},
 	//{"caller": "some_biz",
 	// "callee": "other_page"},
 ];
@@ -248,7 +248,7 @@ function traverse(v) {
 			popped["scc"] = newComponent;
 		} while (v !== popped);
 		components.push(newComponent);
-		console.log(v, P.pop());
+		P.pop();
 	}
 }
 
@@ -259,10 +259,6 @@ Object.keys(nodeMap).forEach(function(nodeKey) {
 vertices.forEach(function(vertex) {
 	if (vertex.preorder === undefined)
 		traverse(vertex);
-});
-
-components.forEach(function(component) {
-	//console.log(component);
 });
 /*
  * END strongly connected components
@@ -275,7 +271,46 @@ components.forEach(function(component) {
  * Use relative depth to nudge nodes up/down as in http://jsfiddle.net/jbothma/Gvuz9/23/
  */
 
-componentDeps = {};
-components.forEach(function(component) {
-	
+//var changed = false;
+function deepenNode(vertex, depth) {
+	if (vertex.depth === undefined || vertex.depth < depth) {
+		vertex.depth = depth;
+//		changed = true;
+//		console.log("set depth", vertex.name, depth);
+	}
+	vertex.callees.forEach(function(other) {
+		if (other.scc === vertex.scc) {
+			// deepen an SCC callee
+			var SCCDepth = depth;
+//			console.log("initialize SCC depth to", depth);
+			other.scc.forEach(function(vInSameSCC) {
+				if (other.depth !== undefined && other.depth > SCCDepth) {
+					SCCDepth = other.depth;
+//					console.log("deepen SCC to ", other.depth);
+				}
+			});
+			other.scc.forEach(function(vInSameSCC) {
+				vInSameSCC.depth = SCCDepth;
+//				console.log("set scc node depth", vertex.name, SCCDepth);
+				// try and recurse out of SCC
+				vInSameSCC.callees.forEach(function(SCCCallee) {
+					if (SCCCallee.scc !== vInSameSCC.scc) {
+//						console.log("exiting SCC", vInSameSCC.name, SCCCallee.name);
+						deepenNode(SCCCallee, SCCDepth+1);
+					}
+				});
+			});
+		} else {
+			// deepen a non-SCC callee
+			deepenNode(other, depth+1);
+		}
+	});
+}
+//do {
+	vertices.forEach(function(vertex) {
+		deepenNode(vertex, 0);
+	});
+//} while (changed);
+vertices.forEach(function(vertex) {
+	console.log(vertex.name, vertex.depth);
 });
