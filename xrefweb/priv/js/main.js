@@ -7,11 +7,18 @@ var width = window.innerWidth,
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
+
+svg.append("svg:marker")
+    .attr("id", "arrowhead")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 25)
+    .attr("refY", 0)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 12)
+    .attr("orient", "auto")
+    .append("svg:path")
+    .attr("d", "M0,-5 L10,0 L0,5");
     
-/**
- * d3 uses node fields index, x, y, px, py, fixed, weight.
- *     and link fields source, target
- */
 var nodeData = [],
 	linkData = [];
 
@@ -19,9 +26,9 @@ var forceLayout = d3.layout.force()
     .nodes(nodeData)
     .links(linkData)
     .size([width, height])
-    .linkDistance(80)
-    .charge([-100])
-    .start();          // start on create
+    .linkDistance(100)
+    .charge([-150])
+    .start();
 
 var linkBindingSelection = svg.selectAll(".link"),
     nodeBindingSelection = svg.selectAll(".node");
@@ -31,7 +38,8 @@ function update() {
 	
 	linkBindingSelection.enter()
 		.append("line")
-			.attr("class", "link");
+			.attr("class", "link")
+			.attr("marker-end", "url(#arrowhead)");
 	
 	nodeBindingSelection = nodeBindingSelection.data(nodeData);
 	var newNode = nodeBindingSelection.enter()
@@ -41,8 +49,8 @@ function update() {
 			.call(forceLayout.drag);
 	
 	newNode.append("ellipse")
-		.attr("rx", 30)
-		.attr("ry", 10)
+		.attr("rx", 35)
+		.attr("ry", 8)
 		.style("fill", "beige");
 
 	var newNodeLabel = newNode.append("text")
@@ -78,7 +86,12 @@ var moduleDeps = [
 	 "callee": "some_db"},
 	{"caller": "some_biz",
 	 "callee": "other_db"},
+	{"caller": "other_db",
+	 "callee": "other_page"},
+	{"caller": "some_biz",
+	 "callee": "other_page"},
 ];
+
 
 var nodeMap = {};
 var linkMap = {};
@@ -105,6 +118,7 @@ moduleDeps.forEach(function (depRel) {
 		newLink(source, target);
 	}
 });
+
 
 function newNode(name) {
 	var node = {
@@ -183,3 +197,73 @@ if (mod = modByName(modName)) {
 	showMod(mod);
 	update();
 }
+
+
+/*************************************************************
+ * STRONGLY CONNECTED COMPONENTS
+ * We need strongly connected components to be able to find the depth of nodes
+ * despite the graph being cyclic.:
+ * http://stackoverflow.com/questions/3603274/traversal-of-cyclic-directed-graph
+ * We use dijkstra's:
+ * http://en.wikipedia.org/wiki/Path-based_strong_component_algorithm
+ * 
+ * We need the depth to position deep nodes lower than shallow nodes.
+ */
+var vertices = [];
+var C = 0;
+var P = [], S = [];
+var components = [];
+
+function traverse(v) {
+	v["preorder"] = C;
+	C++;
+	S.push(v);
+	P.push(v);
+	
+	v.callees.forEach(function(w) {
+		if (w.preorder === undefined) {
+			traverse(w);
+		} else {
+			if (w.scc === undefined) {
+				while (P[P.length-1].preorder > w.preorder) {
+					var popped = P.pop();
+				}
+			}
+		}
+	});
+	if (v === P[P.length-1]) {
+		var newComponent = [];
+		var popped;
+		do {
+			popped = S.pop();
+			newComponent.push(popped);
+			popped["scc"] = newComponent;
+		} while (v !== popped);
+		components.push(newComponent);
+		console.log(v, P.pop());
+	}
+}
+
+Object.keys(nodeMap).forEach(function(nodeKey) {
+	console.log(nodeKey);
+	vertices.push(nodeMap[nodeKey]);
+});
+
+vertices.forEach(function(vertex) {
+	if (vertex.preorder === undefined)
+		traverse(vertex);
+});
+
+components.forEach(function(component) {
+	console.log(component);
+});
+/*
+ * END strongly connected components
+ ********************************************************/
+
+/**
+ * Next: Depth first search over strongly connected components.
+ * Each node in an SCC have the same depth.
+ * Assign depth to each node.
+ * Use relative depth to nudge nodes up/down as in http://jsfiddle.net/jbothma/Gvuz9/23/
+ */
