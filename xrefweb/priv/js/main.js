@@ -27,7 +27,7 @@ var forceLayout = d3.layout.force()
     .links(linkData)
     .size([width, height])
     .linkDistance(function(link) {
-    	return 50+Math.abs(link.source.depth-link.target.depth)*20;
+    	return 60+Math.abs(link.source.depth-link.target.depth)*20;
     })
     .linkStrength(0.8)
     .charge([-300])
@@ -175,6 +175,16 @@ function showMod(mod) {
 	if (! mod.visible) {
 		nodeData.push(mod);
 		mod.visible = true;
+		mod.callees.forEach(function(callee) {
+			if (callee.visible) {
+				showLink(mod, callee);
+			}
+		});
+		mod.callers.forEach(function(caller) {
+			if (caller.visible) {
+				showLink(caller, mod);
+			}
+		});
 		return true;
 	} else {
 		return false;
